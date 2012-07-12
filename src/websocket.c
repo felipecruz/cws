@@ -382,6 +382,8 @@ uint8_t single_frame[] = {0x81, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f};
 uint8_t first_frame[] = {0x01, 0x03, 0x48, 0x65, 0x6c};
 uint8_t second_frame[] = {0x80, 0x02, 0x6c, 0x6f};
 
+uint8_t closing_frame[] = {0x88, 0x00};
+
 /* A single-frame masked text messag */
 uint8_t single_frame_masked[] = {0x81, 0x85, 0x37, 0xfa, 0x21, 0x3d, 0x7f,
                                  0x9f, 0x4d, 0x51, 0x58};
@@ -477,6 +479,7 @@ void
     CU_ASSERT(WS_BINARY_FRAME == type(len_64k));
     CU_ASSERT(WS_PING_FRAME == type(unmasked_ping));
     CU_ASSERT(WS_PONG_FRAME == type(masked_pong));
+    CU_ASSERT(WS_CLOSING_FRAME == type(closing_frame));
 }
 
 void
