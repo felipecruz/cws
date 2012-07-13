@@ -238,7 +238,7 @@ uint64_t
 {
     uint64_t length = 0;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
         length = (length << 8) | value[i];
     }
 
@@ -402,8 +402,8 @@ uint8_t len_256[] = {0x82, 0x7E, 0x01, 0x00, 0x1, 0x1, 0x1, 0x1};
 uint8_t len_256_masked[] = {0x82, 0x8E, 0x01, 0x00, 0x37, 0xfa, 0x21, 0x3d};
 
 /* 64k bytes unmasked frame header */
-uint8_t len_64k[] = {0x82, 0x7F, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00,
-                     0x00, 0x00, 0x00, 0x00};
+uint8_t len_64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,0x00, 0x00};
+
 
 /* mask used in masked message */
 uint8_t mask[4] = {0x37, 0xfa, 0x21, 0x3d};
@@ -454,14 +454,29 @@ void
     free(frame1);
     close(fd);
 
-    fd = open("tests/ws_frame4.txt", O_RDONLY);
-    frame1 = malloc(sizeof(uint8_t) * 1835);
+    fd = open("tests/ws_frame3.txt", O_RDONLY);
+    frame1 = malloc(sizeof(uint8_t) * 961);
 
-    read(fd, frame1, 1835, 0);
+    read(fd, frame1, 10, 0);
 
-    type = ws_parse_input_frame(frame1, 1835, NULL, 0);
+    type = ws_parse_input_frame(frame1, 961, NULL, 0);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    // 961 (total payload size) - 4 (fin, srvs, opcode, payload length) bytes
+    CU_ASSERT(961-4 == _payload_length(frame1));
+
+    free(frame1);
+    close(fd);
+
+    fd = open("tests/ws_frame4.txt", O_RDONLY);
+    frame1 = malloc(sizeof(uint8_t) * 90402);
+
+    read(fd, frame1, 90402, 0);
+
+    type = ws_parse_input_frame(frame1, 90402, NULL, 0);
+
+    CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(90402-10 == _payload_length(frame1));
 
     free(frame1);
     close(fd);
