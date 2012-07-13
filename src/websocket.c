@@ -38,7 +38,8 @@
 
 static char rn[] PROGMEM = "\r\n";
 
-void nullhandshake(struct handshake *hs)
+void
+    nullhandshake(struct handshake *hs)
 {
     hs->host = NULL;
     hs->key1 = NULL;
@@ -48,7 +49,8 @@ void nullhandshake(struct handshake *hs)
     hs->resource = NULL;
 }
 
-static char* get_upto_linefeed(const char *start_from)
+static char*
+    get_upto_linefeed(const char *start_from)
 {
     char *write_to;
     uint8_t new_length = strstr_P(start_from, rn) - start_from + 1;
@@ -61,8 +63,10 @@ static char* get_upto_linefeed(const char *start_from)
     return write_to;
 }
 
-enum ws_frame_type ws_parse_handshake(const uint8_t *input_frame, size_t input_len,
-        struct handshake *hs)
+enum ws_frame_type
+    ws_parse_handshake(const uint8_t *input_frame,
+                       size_t input_len,
+                       struct handshake *hs)
 {
     const char *input_ptr = (const char *)input_frame;
     const char *end_ptr = (const char *)input_frame + input_len;
@@ -136,34 +140,39 @@ enum ws_frame_type ws_parse_handshake(const uint8_t *input_frame, size_t input_l
     }
 
     // we have read all data, so check them
-    if (!hs->host || !hs->origin || //!hs->key1 || !hs->key2 ||
-            !connection_flag || !upgrade_flag)
+    if (!hs->host || !hs->origin || !connection_flag || !upgrade_flag)
+    {
         return WS_ERROR_FRAME;
+    }
 
     return WS_OPENING_FRAME;
 }
 
-enum ws_frame_type ws_get_handshake_answer(const struct handshake *hs,
-        uint8_t *out_frame, size_t *out_len)
+enum ws_frame_type
+    ws_get_handshake_answer(const struct handshake *hs,
+                            uint8_t *out_frame,
+                            size_t *out_len)
 {
-    assert(out_frame);
+    unsigned char accept_key[30];
+    unsigned char digest_key[20];
+    char *pre_key = strcat(hs->key1, _HASHVALUE);
 
     SHA_CTX sha;
-    SHA1_Init(&sha);
 
-    char *pre_key = strcat(hs->key1, _HASHVALUE);
+    assert(out_frame);
+
+    SHA1_Init(&sha);
     SHA1_Update(&sha, pre_key, strlen(pre_key));
 
     debug_print("BaseKey: %s\n", pre_key);
-
-    unsigned char accept_key[30];
-    unsigned char digest_key[20];
 
     SHA1_Final(digest_key, &sha);
 
     debug_print("DigestKey: %s\n", digest_key);
 
-    lws_b64_encode_string(digest_key , strlen(digest_key), accept_key,
+    lws_b64_encode_string(digest_key ,
+                          strlen(digest_key),
+                          accept_key,
                           sizeof(accept_key));
 
     debug_print("AcceptKey: %s\n", accept_key);
@@ -401,7 +410,7 @@ uint8_t mask[4] = {0x37, 0xfa, 0x21, 0x3d};
 
 uint8_t unmasked_ping[] = {0x89, 0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f};
 
-uint8_t masked_pong[] = {0x8a, 0x85, 0x37, 0xfa, 0x21, 0x3d, 0x7f, 0x9f, 0x4d, 
+uint8_t masked_pong[] = {0x8a, 0x85, 0x37, 0xfa, 0x21, 0x3d, 0x7f, 0x9f, 0x4d,
                        0x51, 0x58};
 /*
    o  Unmasked Ping request and masked Ping response
@@ -536,7 +545,7 @@ void
 {
     CU_ASSERT(0 == strncmp((char*) extract_payload(single_frame),
                             "Hello", 5));
-    
+
     CU_ASSERT(0 == strncmp((char*) extract_payload(unmasked_ping),
                             "Hello", 5));
 }
