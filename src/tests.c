@@ -35,8 +35,10 @@ int main()
       return CU_get_error();
    }
 
-   if ((NULL == CU_add_test(websocket_suite, "test websocket check end frame", 
-                            test_websocket_check_end_frame)) ||
+   if ((NULL == CU_add_test(websocket_suite, "test nullhandshake", 
+                            test_nullhandshake)) ||
+       (NULL == CU_add_test(websocket_suite, "test websocket get frame type",
+                            test_websocket_get_frame_type)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket get frame type",
                             test_websocket_get_frame_type)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket check masked",

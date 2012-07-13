@@ -459,6 +459,21 @@ void
 }
 
 void
+    test_nullhandshake(void)
+{
+    struct handshake hs;
+
+    nullhandshake(&hs);
+
+    CU_ASSERT(NULL == hs.host);
+    CU_ASSERT(NULL == hs.origin);
+    CU_ASSERT(NULL == hs.protocol);
+    CU_ASSERT(NULL == hs.resource);
+    CU_ASSERT(NULL == hs.key1);
+    CU_ASSERT(NULL == hs.key2);
+}
+
+void
     test_websocket_check_end_frame(void)
 {
     CU_ASSERT(1 == _end_frame(single_frame));

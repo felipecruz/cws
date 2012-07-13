@@ -112,6 +112,9 @@ int
     init_websocket_test_suite(void);
 
 void
+    test_nullhandshake(void);
+
+void
     test_websocket_parse_input(void);
 
 void
