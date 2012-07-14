@@ -338,12 +338,17 @@ uint8_t*
         } else if (length > 126 && length < 65536) {
             mask = _extract_mask_len2(packet);
             return unmask(&packet[8], length, mask);
+        } else if (length >= 65536) {
+            mask = _extract_mask_len3(packet);
+            return unmask(&packet[14], length, mask);
         }
         return NULL;
     } else {
         if (length < 126) {
             return &packet[2];
         } else if (length > 126 && length < 65536) {
+            return &packet[4];
+        } else if (length >= 65536) {
             return &packet[4];
         }
         return NULL;
@@ -461,6 +466,7 @@ void
     CU_ASSERT(WS_TEXT_FRAME == type);
     // 961 (total payload size) - 4 (fin, srvs, opcode, payload length) bytes
     CU_ASSERT(961-4 == _payload_length(frame1));
+    CU_ASSERT(NULL != extract_payload(frame1));
 
     free(frame1);
     close(fd);
@@ -474,6 +480,7 @@ void
 
     CU_ASSERT(WS_TEXT_FRAME == type);
     CU_ASSERT(90402-10 == _payload_length(frame1));
+    CU_ASSERT(NULL != extract_payload(frame1));
 
     free(frame1);
     close(fd);
