@@ -314,6 +314,22 @@ uint8_t*
 }
 
 uint8_t*
+    _extract_mask_len3(uint8_t *packet)
+{
+    uint8_t *mask;
+    int j = 0;
+
+    mask = malloc(sizeof(uint8_t) * 4);
+
+    for(int i = 10; i < 14; i++) {
+        mask[j] = packet[i];
+        j++;
+    }
+
+    return mask;
+}
+
+uint8_t*
     unmask(uint8_t *packet, uint64_t length, uint8_t *mask)
 {
     for (int i = 0; i < length; i++) {
