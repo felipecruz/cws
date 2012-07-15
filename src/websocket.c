@@ -381,6 +381,9 @@ enum ws_frame_type
 {
     enum ws_frame_type frame_type;
 
+    if (input_frame == NULL)
+        return WS_ERROR_FRAME;
+
     if (input_len < 2)
         return WS_INCOMPLETE_FRAME;
 
@@ -412,8 +415,18 @@ void
 {
     int fd;
     uint8_t *frame1;
+    const uint8_t small_frame[] = {0x89};
     enum ws_frame_type type;
 
+    type = ws_parse_input_frame(NULL, 0, NULL, 0);
+    CU_ASSERT(WS_ERROR_FRAME == type);
+
+    type = ws_parse_input_frame(NULL, 10, NULL, 10);
+    CU_ASSERT(WS_ERROR_FRAME == type);
+
+    type = ws_parse_input_frame(small_frame, 1, NULL, 2);
+    CU_ASSERT(WS_INCOMPLETE_FRAME == type);
+    
     fd = open("tests/ws_frame.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 10);
 
