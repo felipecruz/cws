@@ -1,3 +1,5 @@
+*~
+app.info
 *.gcda
 *.gcno
 coverage/
