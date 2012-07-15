@@ -358,7 +358,6 @@ uint8_t*
             mask = _extract_mask_len3(packet);
             return unmask(&packet[14], length, mask);
         }
-        return NULL;
     } else {
         if (length < 126) {
             return &packet[2];
@@ -367,10 +366,8 @@ uint8_t*
         } else if (length >= 65536) {
             return &packet[4];
         }
-        return NULL;
     }
     return NULL;
-
 }
 
 enum ws_frame_type
