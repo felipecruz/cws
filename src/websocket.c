@@ -480,12 +480,19 @@ void
     free(frame1);
     close(fd);
 
-    type = ws_parse_input_frame(client_big_masked, 90405, NULL, 0);
+    type = ws_parse_input_frame(client_big_masked_frame, 90405, NULL, 0);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
-    CU_ASSERT(90404-14 == _payload_length(client_big_masked));
-    CU_ASSERT(NULL != _extract_mask_len3(client_big_masked));
-    CU_ASSERT(NULL != extract_payload(client_big_masked));
+    CU_ASSERT(90404-14 == _payload_length(client_big_masked_frame));
+    CU_ASSERT(NULL != _extract_mask_len3(client_big_masked_frame));
+    CU_ASSERT(NULL != extract_payload(client_big_masked_frame));
+
+    type = ws_parse_input_frame(client_medium_masked_frame, 90405, NULL, 0);
+
+    CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(333-14 == _payload_length(client_medium_masked_frame));
+    CU_ASSERT(NULL != _extract_mask_len3(client_medium_masked_frame));
+    CU_ASSERT(NULL != extract_payload(client_medium_masked_frame));
 }
 
 void
@@ -525,7 +532,8 @@ void
     CU_ASSERT(WS_PING_FRAME == type(unmasked_ping));
     CU_ASSERT(WS_PONG_FRAME == type(masked_pong));
     CU_ASSERT(WS_CLOSING_FRAME == type(closing_frame));
-    CU_ASSERT(WS_TEXT_FRAME == type(client_big_masked));
+    CU_ASSERT(WS_TEXT_FRAME == type(client_big_masked_frame));
+    CU_ASSERT(WS_TEXT_FRAME == type(client_medium_masked_frame));
 }
 
 void
@@ -537,7 +545,8 @@ void
     CU_ASSERT(1 == _masked(single_frame_masked));
     CU_ASSERT(0 == _masked(len_256));
     CU_ASSERT(0 == _masked(len_64k));
-    CU_ASSERT(1 == _masked(client_big_masked));
+    CU_ASSERT(1 == _masked(client_big_masked_frame));
+    CU_ASSERT(1 == _masked(client_medium_masked_frame));
 }
 
 void
@@ -561,9 +570,11 @@ void
     CU_ASSERT(0 == strncmp((char*) _extract_mask_len2(len_256_masked),
                            (char*) mask, 4));
 
-    CU_ASSERT(0 == strncmp((char*) _extract_mask_len3(client_big_masked),
+    CU_ASSERT(0 == strncmp((char*) _extract_mask_len3(client_big_masked_frame),
                            (char*) big_data_mask, 4));
 
+    CU_ASSERT(0 == strncmp((char*) _extract_mask_len3(client_medium_masked_frame),
+                           (char*) medium_data_mask, 4));
 }
 
 void
