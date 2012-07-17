@@ -82,63 +82,57 @@ struct handshake {
     char key3[8];
 };
 
-    void 
-        nullhandshake(struct handshake *hs);
+void
+    nullhandshake(struct handshake *hs);
 
-    enum ws_frame_type ws_parse_handshake(const uint8_t *input_frame, size_t input_len,
-        struct handshake *hs);
+enum ws_frame_type ws_parse_handshake(const uint8_t *input_frame, size_t input_len,
+    struct handshake *hs);
 
-    enum ws_frame_type ws_get_handshake_answer(const struct handshake *hs,
-        uint8_t *out_frame, size_t *out_len);
+enum ws_frame_type ws_get_handshake_answer(const struct handshake *hs,
+    uint8_t *out_frame, size_t *out_len);
 
-    enum ws_frame_type ws_make_frame(uint8_t *data, size_t data_len,
-        uint8_t *out_frame, size_t *out_len, enum ws_frame_type frame_type);
+enum ws_frame_type ws_make_frame(uint8_t *data, size_t data_len,
+    uint8_t *out_frame, size_t *out_len, enum ws_frame_type frame_type);
 
-    enum ws_frame_type ws_parse_input_frame(uint8_t *input_frame, size_t input_len,
-        uint8_t **out_data_ptr, size_t *out_len);
+enum ws_frame_type ws_parse_input_frame(uint8_t *input_frame, size_t input_len,
+    uint8_t **out_data_ptr, size_t *out_len);
 
-    enum ws_frame_type
-        type(uint8_t* frame);
+enum ws_frame_type
+    type(uint8_t* frame);
 
-    uint8_t* 
-        extract_payload(uint8_t* frame); 
+uint8_t*
+    extract_payload(uint8_t* frame);
 
 #ifdef  __cplusplus
 }
 #endif
 
 #if TEST
-int 
-    init_websocket_test_suite(void);
+int
+    _end_frame(uint8_t *packet);
 
-void
-    test_nullhandshake(void);
+int
+    _masked(uint8_t *packet);
 
-void
-    test_websocket_parse_input(void);
+uint64_t
+    f_uint64(uint8_t *value);
 
-void
-    test_websocket_check_end_frame(void);
+uint16_t
+    f_uint16(uint8_t *value);
 
-void
-    test_websocket_get_frame_type(void);
+uint64_t
+    _payload_length(uint8_t *packet);
 
-void
-    test_websocket_check_masked(void);
-    
-void
-    test_websocket_get_payload_length(void);
+uint8_t*
+    _extract_mask_len1(uint8_t *packet);
 
-void
-    test_websocket_extract_mask(void);
+uint8_t*
+    _extract_mask_len2(uint8_t *packet);
 
-void
-    test_websocket_extract_payload(void);
-    
-void
-    test_websocket_extract_masked_payload(void);
+uint8_t*
+    _extract_mask_len3(uint8_t *packet);
 
-void
-    test_frames(void);
+uint8_t*
+    unmask(uint8_t *packet, uint64_t length, uint8_t *mask);
 #endif
 #endif  /* WEBSOCKET_H */
