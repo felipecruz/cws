@@ -241,7 +241,24 @@ void
 void
     test_websocket_get_handshake_answer(void)
 {
+    struct handshake hs;
+    uint8_t *out;
+    size_t len;
+    char *key = "rRec6RPAbwPWLEsSQpGDKA==";
 
+    nullhandshake(&hs);
+
+    out = (uint8_t*) malloc(sizeof(uint8_t) * 4096);
+
+    hs.key1 = key;
+    ws_get_handshake_answer(&hs, out, &len);
+    
+    CU_ASSERT(0 == strcmp((char*)out,
+                          "HTTP/1.1 101 Switching Protocols\r\n"
+                          "Upgrade: websocket\r\n"
+                          "Connection: Upgrade\r\n"
+                          "Sec-WebSocket-Accept: qVMgwBQ7DRv6Mxw0KMXrjlX6EQQ=\r\n\r\n"));
+    CU_ASSERT(129 == len);
 }
 
 void test_websocket_make_frame(void)
@@ -280,6 +297,8 @@ int main()
                             test_websocket_extract_masked_payload)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket frames",
                             test_websocket_frames)) ||
+       (NULL == CU_add_test(websocket_suite, "test get up to linefeed",
+                            test_get_upto_linefeed)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket parse handshake",
                             test_websocket_parse_handshake)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket parse get handshake answer",

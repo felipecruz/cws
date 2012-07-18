@@ -54,13 +54,13 @@ uint8_t*
 {
     uint8_t *write_to;
     uint8_t new_length = strstr_P(start_from, rn) - start_from;
-    
+
     assert(new_length);
-    
+
     write_to = (uint8_t*) malloc(new_length + 1); //+1 for '\x00'
-    
+
     assert(write_to);
-    
+
     memcpy(write_to, start_from, new_length);
     write_to[new_length] = 0;
 
@@ -159,25 +159,20 @@ enum ws_frame_type
 {
     unsigned char accept_key[30];
     unsigned char digest_key[20];
-    char *pre_key = strcat(hs->key1, _HASHVALUE);
 
-    SHA_CTX sha;
-
-    assert(out_frame);
-
-    SHA1_Init(&sha);
-    SHA1_Update(&sha, pre_key, strlen(pre_key));
-
-    debug_print("BaseKey: %s\n", pre_key);
-
-    SHA1_Final(digest_key, &sha);
-
+    char *pre_key = malloc(strlen(hs->key1) + strlen(_HASHVALUE) + 1);
+    sprintf(pre_key, "%s%s\0", hs->key1, _HASHVALUE);  
+   
+    SHA1(pre_key, strlen(pre_key), digest_key);
+    
+    free(pre_key);
+    
     debug_print("DigestKey: %s\n", digest_key);
 
     lws_b64_encode_string(digest_key ,
-                          strlen(digest_key),
+                          20,
                           accept_key,
-                          sizeof(accept_key));
+                          30);
 
     debug_print("AcceptKey: %s\n", accept_key);
 
@@ -188,6 +183,8 @@ enum ws_frame_type
             "Sec-WebSocket-Accept: %s\r\n\r\n"), accept_key);
 
     *out_len = written;
+    debug_print("Written %d\n", written);
+
     return WS_OPENING_FRAME;
 }
 
