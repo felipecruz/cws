@@ -49,15 +49,15 @@ void
     hs->resource = NULL;
 }
 
-static uint8_t*
-    get_upto_linefeed(const uint8_t *start_from)
+uint8_t*
+    get_upto_linefeed(const char *start_from)
 {
     uint8_t *write_to;
     uint8_t new_length = strstr_P(start_from, rn) - start_from;
     
     assert(new_length);
     
-    write_to = (char *) malloc(new_length + 1); //+1 for '\x00'
+    write_to = (uint8_t*) malloc(new_length + 1); //+1 for '\x00'
     
     assert(write_to);
     

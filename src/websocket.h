@@ -119,6 +119,9 @@ uint8_t*
 #endif
 
 #if TEST
+uint8_t*
+    get_upto_linefeed(const char *start_from);
+
 int
     _end_frame(uint8_t *packet);
 
