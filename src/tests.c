@@ -33,7 +33,7 @@ int
 }
 
 void
-    test_frames(void)
+    test_websocket_frames(void)
 {
     int fd;
     uint8_t *frame1;
@@ -219,17 +219,34 @@ void
                             "Hello", 5));
 }
 
-void 
+void
     test_get_upto_linefeed(void)
 {
     CU_ASSERT(0 == strcmp((char*)get_upto_linefeed("GET /?encoding=text HTTP/1.1\r\n"),
                           "GET /?encoding=text HTTP/1.1"));
-    
+
     CU_ASSERT(0 == strcmp((char*)get_upto_linefeed("Upgrade: websocket\r\n"),
                           "Upgrade: websocket"));
-    
+
     CU_ASSERT(0 == strcmp((char*)get_upto_linefeed("Sec-WebSocket-Key: rRec6RPAbwPWLEsSQpGDKA==\r\n"),
                           "Sec-WebSocket-Key: rRec6RPAbwPWLEsSQpGDKA=="));
+}
+
+void
+    test_websocket_parse_handshake(void)
+{
+
+}
+
+void
+    test_websocket_get_handshake_answer(void)
+{
+
+}
+
+void test_websocket_make_frame(void)
+{
+
 }
 
 int main()
@@ -262,9 +279,13 @@ int main()
        (NULL == CU_add_test(websocket_suite, "test websocket extract masked payload",
                             test_websocket_extract_masked_payload)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket frames",
-                            test_frames)) ||
-       (NULL == CU_add_test(websocket_suite, "test get up to linefeed",
-                            test_get_upto_linefeed)))
+                            test_websocket_frames)) ||
+       (NULL == CU_add_test(websocket_suite, "test websocket parse handshake",
+                            test_websocket_parse_handshake)) ||
+       (NULL == CU_add_test(websocket_suite, "test websocket parse get handshake answer",
+                            test_websocket_get_handshake_answer)) ||
+       (NULL == CU_add_test(websocket_suite, "test websocket make frame",
+                            test_websocket_make_frame)))
    {
       CU_cleanup_registry();
       return CU_get_error();
