@@ -241,17 +241,19 @@ void
 void
     test_websocket_get_handshake_answer(void)
 {
-    struct handshake hs;
-    uint8_t *out;
-    size_t len;
     char *key = "rRec6RPAbwPWLEsSQpGDKA==";
+    size_t len;
+    uint8_t *out;
+    
+    enum ws_frame_type type;
+    struct handshake hs;
 
     nullhandshake(&hs);
 
     out = (uint8_t*) malloc(sizeof(uint8_t) * 4096);
 
     hs.key1 = key;
-    ws_get_handshake_answer(&hs, out, &len);
+    type = ws_get_handshake_answer(&hs, out, &len);
     
     CU_ASSERT(0 == strcmp((char*)out,
                           "HTTP/1.1 101 Switching Protocols\r\n"
@@ -259,6 +261,23 @@ void
                           "Connection: Upgrade\r\n"
                           "Sec-WebSocket-Accept: qVMgwBQ7DRv6Mxw0KMXrjlX6EQQ=\r\n\r\n"));
     CU_ASSERT(129 == len);
+    CU_ASSERT(type == WS_OPENING_FRAME);
+
+    free(out);
+
+    out = NULL;
+
+    type = ws_get_handshake_answer(&hs, out, &len);
+
+    CU_ASSERT(type == WS_ERROR_FRAME);
+    CU_ASSERT(0 == len);
+    
+    hs.key1 = NULL;
+
+    type = ws_get_handshake_answer(&hs, out, &len);
+
+    CU_ASSERT(type == WS_ERROR_FRAME);
+    CU_ASSERT(0 == len);
 }
 
 void test_websocket_make_frame(void)

@@ -160,6 +160,11 @@ enum ws_frame_type
     unsigned char accept_key[30];
     unsigned char digest_key[20];
 
+    if (hs->key1 == NULL || out_frame == NULL) {
+        *out_len = 0;
+        return WS_ERROR_FRAME;
+    }
+
     char *pre_key = malloc(strlen(hs->key1) + strlen(_HASHVALUE) + 1);
     sprintf(pre_key, "%s%s\0", hs->key1, _HASHVALUE);  
    
