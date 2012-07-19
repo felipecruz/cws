@@ -209,12 +209,11 @@ enum ws_frame_type
     if (input_len < 2)
         return WS_INCOMPLETE_FRAME;
 
-    debug_print("(ws) %d is end frame\n", _end_frame(input_frame));
     debug_print("(ws) %d frame type\n", type(input_frame));
-    debug_print("(ws) %s content\n", (char*) extract_payload(input_frame,
-                                                             out_len));
 
     out_data_ptr = extract_payload(input_frame, out_len);
+    
+    debug_print("(ws) %s content\n", (char*) out_data_ptr);
 
     frame_type = type(input_frame);
 
