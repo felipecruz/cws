@@ -43,7 +43,6 @@ void
 {
     hs->host = NULL;
     hs->key1 = NULL;
-    hs->key2 = NULL;
     hs->origin = NULL;
     hs->protocol = NULL;
     hs->resource = NULL;
@@ -127,11 +126,6 @@ enum ws_frame_type
             input_ptr += strlen_P(key1);
             prepare(hs->key1);
             hs->key1 = get_upto_linefeed(input_ptr);
-        } else
-            if (memcmp_P(input_ptr, key2, strlen_P(key2)) == 0) {
-            input_ptr += strlen_P(key2);
-            prepare(hs->key2);
-            hs->key2 = get_upto_linefeed(input_ptr);
         } else
             if (memcmp_P(input_ptr, connection, strlen_P(connection)) == 0) {
             connection_flag = TRUE;

@@ -78,8 +78,6 @@ struct handshake {
     char *origin;
     char *protocol;
     char *key1;
-    char *key2;
-    char key3[8];
 };
 
 void

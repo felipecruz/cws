@@ -143,7 +143,6 @@ void
     CU_ASSERT(NULL == hs.protocol);
     CU_ASSERT(NULL == hs.resource);
     CU_ASSERT(NULL == hs.key1);
-    CU_ASSERT(NULL == hs.key2);
 }
 
 void
