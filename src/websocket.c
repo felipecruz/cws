@@ -194,6 +194,34 @@ enum ws_frame_type
 }
 
 enum ws_frame_type
+    ws_parse_input_frame(uint8_t *input_frame,
+                         size_t input_len,
+                         uint8_t **out_data_ptr,
+                         uint64_t *out_len)
+{
+    enum ws_frame_type frame_type;
+
+    *out_len = 0;
+
+    if (input_frame == NULL)
+        return WS_ERROR_FRAME;
+
+    if (input_len < 2)
+        return WS_INCOMPLETE_FRAME;
+
+    debug_print("(ws) %d is end frame\n", _end_frame(input_frame));
+    debug_print("(ws) %d frame type\n", type(input_frame));
+    debug_print("(ws) %s content\n", (char*) extract_payload(input_frame,
+                                                             out_len));
+
+    out_data_ptr = extract_payload(input_frame, out_len);
+
+    frame_type = type(input_frame);
+
+    return frame_type;
+}
+
+enum ws_frame_type
     ws_make_frame(uint8_t *data,
                   size_t data_len,
                   uint8_t *out_frame,
@@ -374,32 +402,4 @@ uint8_t*
         }
     }
     return NULL;
-}
-
-enum ws_frame_type
-    ws_parse_input_frame(uint8_t *input_frame,
-                         size_t input_len,
-                         uint8_t **out_data_ptr,
-                         uint64_t *out_len)
-{
-    enum ws_frame_type frame_type;
-
-    *out_len = 0;
-
-    if (input_frame == NULL)
-        return WS_ERROR_FRAME;
-
-    if (input_len < 2)
-        return WS_INCOMPLETE_FRAME;
-
-    debug_print("(ws) %d is end frame\n", _end_frame(input_frame));
-    debug_print("(ws) %d frame type\n", type(input_frame));
-    debug_print("(ws) %s content\n", (char*) extract_payload(input_frame,
-                                                             out_len));
-
-    out_data_ptr = extract_payload(input_frame, out_len);
-
-    frame_type = type(input_frame);
-
-    return frame_type;
 }
