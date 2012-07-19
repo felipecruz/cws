@@ -196,7 +196,7 @@ enum ws_frame_type
 enum ws_frame_type
     ws_parse_input_frame(uint8_t *input_frame,
                          size_t input_len,
-                         uint8_t **out_data_ptr,
+                         uint8_t *out_data_ptr,
                          uint64_t *out_len)
 {
     enum ws_frame_type frame_type;

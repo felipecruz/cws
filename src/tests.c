@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <unistd.h>
 #include "websocket.h"
 #include "CUnit/Basic.h"
 #include "test_packages.h"
@@ -37,8 +37,8 @@ void
 {
     int fd;
     uint8_t *frame1;
-    uint8_t **target;
-    const uint8_t small_frame[] = {0x89};
+    uint8_t *target;
+    uint8_t small_frame[] = {0x89};
     enum ws_frame_type type;
     uint64_t length;
 
@@ -60,7 +60,7 @@ void
     fd = open("tests/ws_frame.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 10);
 
-    read(fd, frame1, 10, 0);
+    read(fd, frame1, 10);
 
     type = ws_parse_input_frame(frame1, 10, target, &length);
 
@@ -73,7 +73,7 @@ void
     fd = open("tests/ws_frame2.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 18);
 
-    read(fd, frame1, 18, 0);
+    read(fd, frame1, 18);
 
     type = ws_parse_input_frame(frame1, 18, target, &length);
 
@@ -86,7 +86,7 @@ void
     fd = open("tests/ws_frame3.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 961);
 
-    read(fd, frame1, 10, 0);
+    read(fd, frame1, 10);
 
     type = ws_parse_input_frame(frame1, 961, target, &length);
 
@@ -102,7 +102,7 @@ void
     fd = open("tests/ws_frame4.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 90402);
 
-    read(fd, frame1, 90402, 0);
+    read(fd, frame1, 90402);
 
     type = ws_parse_input_frame(frame1, 90402, target, &length);
 
