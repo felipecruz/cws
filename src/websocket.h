@@ -106,13 +106,13 @@ enum ws_frame_type
     ws_parse_input_frame(uint8_t *input_frame,
                          size_t input_len,
                          uint8_t **out_data_ptr,
-                         size_t *out_len);
+                         uint64_t *out_len);
 
 enum ws_frame_type
     type(uint8_t* frame);
 
 uint8_t*
-    extract_payload(uint8_t* frame);
+    extract_payload(uint8_t* frame, uint64_t *length);
 
 #ifdef  __cplusplus
 }

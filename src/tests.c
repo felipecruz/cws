@@ -37,38 +37,48 @@ void
 {
     int fd;
     uint8_t *frame1;
+    uint8_t **target;
     const uint8_t small_frame[] = {0x89};
     enum ws_frame_type type;
+    uint64_t length;
 
-    type = ws_parse_input_frame(NULL, 0, NULL, 0);
+    type = ws_parse_input_frame(NULL, 0, target, &length);
+
     CU_ASSERT(WS_ERROR_FRAME == type);
+    CU_ASSERT(0 == length);
 
-    type = ws_parse_input_frame(NULL, 10, NULL, 10);
+    type = ws_parse_input_frame(NULL, 10, target, &length);
+
     CU_ASSERT(WS_ERROR_FRAME == type);
+    CU_ASSERT(0 == length);
 
-    type = ws_parse_input_frame(small_frame, 1, NULL, 2);
+    type = ws_parse_input_frame(small_frame, 1, target, &length);
+
     CU_ASSERT(WS_INCOMPLETE_FRAME == type);
+    CU_ASSERT(0 == length);
 
     fd = open("tests/ws_frame.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 10);
 
     read(fd, frame1, 10, 0);
 
-    type = ws_parse_input_frame(frame1, 10, NULL, 0);
+    type = ws_parse_input_frame(frame1, 10, target, &length);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(10-6 == length);
 
     free(frame1);
     close(fd);
 
     fd = open("tests/ws_frame2.txt", O_RDONLY);
-    frame1 = malloc(sizeof(uint8_t) * 10);
+    frame1 = malloc(sizeof(uint8_t) * 18);
 
-    read(fd, frame1, 10, 0);
+    read(fd, frame1, 18, 0);
 
-    type = ws_parse_input_frame(frame1, 10, NULL, 0);
+    type = ws_parse_input_frame(frame1, 18, target, &length);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(18-2 == length);
 
     free(frame1);
     close(fd);
@@ -78,12 +88,13 @@ void
 
     read(fd, frame1, 10, 0);
 
-    type = ws_parse_input_frame(frame1, 961, NULL, 0);
+    type = ws_parse_input_frame(frame1, 961, target, &length);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(961-4 == length);
     // 961 (total payload size) - 4 (fin, srvs, opcode, payload length) bytes
     CU_ASSERT(961-4 == _payload_length(frame1));
-    CU_ASSERT(NULL != extract_payload(frame1));
+    CU_ASSERT(NULL != extract_payload(frame1, &length));
 
     free(frame1);
     close(fd);
@@ -93,28 +104,31 @@ void
 
     read(fd, frame1, 90402, 0);
 
-    type = ws_parse_input_frame(frame1, 90402, NULL, 0);
+    type = ws_parse_input_frame(frame1, 90402, target, &length);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(90402-10 == length);
     CU_ASSERT(90402-10 == _payload_length(frame1));
-    CU_ASSERT(NULL != extract_payload(frame1));
+    CU_ASSERT(NULL != extract_payload(frame1, &length));
 
     free(frame1);
     close(fd);
 
-    type = ws_parse_input_frame(client_big_masked_frame, 90405, NULL, 0);
+    type = ws_parse_input_frame(client_big_masked_frame, 90405, target, &length);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(90404-14 == length);
     CU_ASSERT(90404-14 == _payload_length(client_big_masked_frame));
     CU_ASSERT(NULL != _extract_mask_len3(client_big_masked_frame));
-    CU_ASSERT(NULL != extract_payload(client_big_masked_frame));
+    CU_ASSERT(NULL != extract_payload(client_big_masked_frame, &length));
 
-    type = ws_parse_input_frame(client_medium_masked_frame, 90405, NULL, 0);
+    type = ws_parse_input_frame(client_medium_masked_frame, 90405, target, &length);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(333-14 == length);
     CU_ASSERT(333-14 == _payload_length(client_medium_masked_frame));
     CU_ASSERT(NULL != _extract_mask_len3(client_medium_masked_frame));
-    CU_ASSERT(NULL != extract_payload(client_medium_masked_frame));
+    CU_ASSERT(NULL != extract_payload(client_medium_masked_frame, &length));
 }
 
 void
@@ -202,21 +216,29 @@ void
 void
     test_websocket_extract_payload(void)
 {
-    CU_ASSERT(0 == strncmp((char*) extract_payload(single_frame),
-                            "Hello", 5));
+    uint64_t length;
 
-    CU_ASSERT(0 == strncmp((char*) extract_payload(unmasked_ping),
+    CU_ASSERT(0 == strncmp((char*) extract_payload(single_frame, &length),
                             "Hello", 5));
+    CU_ASSERT(5 == length);
+
+    CU_ASSERT(0 == strncmp((char*) extract_payload(unmasked_ping, &length),
+                            "Hello", 5));
+    CU_ASSERT(5 == length);
 }
 
 void
     test_websocket_extract_masked_payload(void)
 {
-    CU_ASSERT(0 == strncmp((char*) extract_payload(single_frame_masked),
-                            "Hello", 5));
+    uint64_t length;
 
-    CU_ASSERT(0 == strncmp((char*) extract_payload(masked_pong),
+    CU_ASSERT(0 == strncmp((char*) extract_payload(single_frame_masked, &length),
                             "Hello", 5));
+    CU_ASSERT(5 == length);
+
+    CU_ASSERT(0 == strncmp((char*) extract_payload(masked_pong, &length),
+                            "Hello", 5));
+    CU_ASSERT(5 == length);
 }
 
 void
@@ -244,7 +266,7 @@ void
     char *key = "rRec6RPAbwPWLEsSQpGDKA==";
     size_t len;
     uint8_t *out;
-    
+
     enum ws_frame_type type;
     struct handshake hs;
 
@@ -254,7 +276,7 @@ void
 
     hs.key1 = key;
     type = ws_get_handshake_answer(&hs, out, &len);
-    
+
     CU_ASSERT(0 == strcmp((char*)out,
                           "HTTP/1.1 101 Switching Protocols\r\n"
                           "Upgrade: websocket\r\n"
@@ -271,7 +293,7 @@ void
 
     CU_ASSERT(type == WS_ERROR_FRAME);
     CU_ASSERT(0 == len);
-    
+
     hs.key1 = NULL;
 
     type = ws_get_handshake_answer(&hs, out, &len);

@@ -347,29 +347,29 @@ uint8_t*
 }
 
 uint8_t*
-    extract_payload(uint8_t *packet)
+    extract_payload(uint8_t *packet, uint64_t *length)
 {
     uint8_t *mask;
     int m = _masked(packet);
-    uint64_t length = _payload_length(packet);
+    *length = _payload_length(packet);
 
     if (m == 1) {
-        if (length < 126) {
+        if (*length < 126) {
             mask = _extract_mask_len1(packet);
-            return unmask(&packet[6], length, mask);
-        } else if (length > 126 && length < 65536) {
+            return unmask(&packet[6], *length, mask);
+        } else if (*length > 126 && *length < 65536) {
             mask = _extract_mask_len2(packet);
-            return unmask(&packet[8], length, mask);
-        } else if (length >= 65536) {
+            return unmask(&packet[8], *length, mask);
+        } else if (*length >= 65536) {
             mask = _extract_mask_len3(packet);
-            return unmask(&packet[14], length, mask);
+            return unmask(&packet[14], *length, mask);
         }
     } else {
-        if (length < 126) {
+        if (*length < 126) {
             return &packet[2];
-        } else if (length > 126 && length < 65536) {
+        } else if (*length > 126 && *length < 65536) {
             return &packet[4];
-        } else if (length >= 65536) {
+        } else if (*length >= 65536) {
             return &packet[4];
         }
     }
@@ -380,9 +380,11 @@ enum ws_frame_type
     ws_parse_input_frame(uint8_t *input_frame,
                          size_t input_len,
                          uint8_t **out_data_ptr,
-                         size_t *out_len)
+                         uint64_t *out_len)
 {
     enum ws_frame_type frame_type;
+
+    *out_len = 0;
 
     if (input_frame == NULL)
         return WS_ERROR_FRAME;
@@ -392,7 +394,10 @@ enum ws_frame_type
 
     debug_print("(ws) %d is end frame\n", _end_frame(input_frame));
     debug_print("(ws) %d frame type\n", type(input_frame));
-    debug_print("(ws) %s content\n", (char*) extract_payload(input_frame));
+    debug_print("(ws) %s content\n", (char*) extract_payload(input_frame,
+                                                             out_len));
+
+    out_data_ptr = extract_payload(input_frame, out_len);
 
     frame_type = type(input_frame);
 
