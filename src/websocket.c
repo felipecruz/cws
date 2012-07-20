@@ -122,11 +122,6 @@ enum ws_frame_type
             prepare(hs->key1);
             hs->key1 = get_upto_linefeed(input_ptr);
         } else
-            if (memcmp_P(input_ptr, key1, strlen_P(key1)) == 0) {
-            input_ptr += strlen_P(key1);
-            prepare(hs->key1);
-            hs->key1 = get_upto_linefeed(input_ptr);
-        } else
             if (memcmp_P(input_ptr, connection, strlen_P(connection)) == 0) {
             connection_flag = TRUE;
         } else
@@ -221,10 +216,49 @@ enum ws_frame_type
                   size_t *out_len,
                   enum ws_frame_type frame_type)
 {
+    uint8_t* header;
+
     assert(out_frame);
     assert(data);
 
+    header = _make_header(data_len, 1, frame_type);
+
+    out_frame = header;
+    
     return frame_type;
+}
+
+uint8_t*
+    _make_header(size_t data_len, int end_frame, enum ws_frame_type frame_type)
+{
+    uint8_t *header;
+    uint8_t end_byte;
+
+    if (data_len < 1) {
+        return NULL;
+    }
+
+    if (end_frame == 0) {
+        end_byte = 0x0;
+    } else if (end_frame == 1) {
+        end_byte = 0x80;
+    } else {
+        return NULL;
+    }
+
+    if (data_len < 126) {
+        header = malloc(sizeof(uint8_t) * 2);
+        header[0] = end_byte | frame_type;
+        header[1] = (uint8_t) data_len;
+        return header;
+    } else if (data_len > 126 && data_len < 65536) {
+        header = malloc(sizeof(uint8_t) * 4);
+        return header;
+    } else if (data_len >= 65536) {
+        header = malloc(sizeof(uint8_t) * 10);
+        return header;
+    }
+    return NULL;
 }
 
 int
@@ -251,7 +285,6 @@ enum ws_frame_type
     } else if (opcode == 0x0A) {
         return WS_PONG_FRAME;
     }
-
 }
 
 int

@@ -58,18 +58,16 @@ static const char host[] PROGMEM = "Host: ";
 static const char origin[] PROGMEM = "Origin: ";
 static const char protocol[] PROGMEM = "Sec-WebSocket-Protocol: ";
 static const char key[] PROGMEM = "Sec-WebSocket-Key: ";
-static const char key1[] PROGMEM = "Sec-WebSocket-Key1: ";
-static const char key2[] PROGMEM = "Sec-WebSocket-Key2: ";
 
 enum ws_frame_type {
-    WS_ERROR_FRAME = 1,
+    WS_ERROR_FRAME = 0,
     WS_INCOMPLETE_FRAME = 2,
-    WS_TEXT_FRAME = 3,
-    WS_BINARY_FRAME = 4,
+    WS_TEXT_FRAME = 0x01,
+    WS_BINARY_FRAME = 0x08,
     WS_OPENING_FRAME = 5,
     WS_CLOSING_FRAME = 6,
-    WS_PING_FRAME = 7,
-    WS_PONG_FRAME = 8
+    WS_PING_FRAME = 0x09,
+    WS_PONG_FRAME = 0x0A
 };
 
 struct handshake {
@@ -119,6 +117,9 @@ uint8_t*
 #if TEST
 uint8_t*
     get_upto_linefeed(const char *start_from);
+
+uint8_t*
+    _make_header(size_t data_len, int end_frame, enum ws_frame_type frame_type);
 
 int
     _end_frame(uint8_t *packet);

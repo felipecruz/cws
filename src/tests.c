@@ -37,6 +37,7 @@ void
 {
     int fd;
     uint8_t *frame1;
+    uint8_t *mask;
     uint8_t *target;
     uint8_t small_frame[] = {0x89};
     enum ws_frame_type type;
@@ -115,20 +116,24 @@ void
     close(fd);
 
     type = ws_parse_input_frame(client_big_masked_frame, 90405, target, &length);
+    mask = _extract_mask_len3(client_big_masked_frame);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
     CU_ASSERT(90404-14 == length);
     CU_ASSERT(90404-14 == _payload_length(client_big_masked_frame));
-    CU_ASSERT(NULL != _extract_mask_len3(client_big_masked_frame));
+    CU_ASSERT(NULL != mask);
     CU_ASSERT(NULL != extract_payload(client_big_masked_frame, &length));
+    free(mask);
 
     type = ws_parse_input_frame(client_medium_masked_frame, 90405, target, &length);
+    mask = _extract_mask_len3(client_medium_masked_frame);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
     CU_ASSERT(333-14 == length);
     CU_ASSERT(333-14 == _payload_length(client_medium_masked_frame));
-    CU_ASSERT(NULL != _extract_mask_len3(client_medium_masked_frame));
+    CU_ASSERT(NULL != mask);
     CU_ASSERT(NULL != extract_payload(client_medium_masked_frame, &length));
+    free(mask);
 }
 
 void
@@ -199,17 +204,27 @@ void
 void
     test_websocket_extract_mask(void)
 {
-    CU_ASSERT(0 == strncmp((char*) _extract_mask_len1(single_frame_masked),
-                           (char*) mask, 4));
+    uint8_t *mask;
 
-    CU_ASSERT(0 == strncmp((char*) _extract_mask_len2(len_256_masked),
+    mask = _extract_mask_len1(single_frame_masked);
+    CU_ASSERT(0 == strncmp((char*) mask,
                            (char*) mask, 4));
+    free(mask);
 
-    CU_ASSERT(0 == strncmp((char*) _extract_mask_len3(client_big_masked_frame),
+    mask = _extract_mask_len2(len_256_masked);
+    CU_ASSERT(0 == strncmp((char*) mask,
+                           (char*) mask, 4));
+    free(mask);
+
+    mask = _extract_mask_len3(client_big_masked_frame);
+    CU_ASSERT(0 == strncmp((char*) mask,
                            (char*) big_data_mask, 4));
+    free(mask);
 
-    CU_ASSERT(0 == strncmp((char*) _extract_mask_len3(client_medium_masked_frame),
+    mask = _extract_mask_len3(client_medium_masked_frame);
+    CU_ASSERT(0 == strncmp((char*) mask,
                            (char*) medium_data_mask, 4));
+    free(mask);
 }
 
 void
@@ -243,14 +258,22 @@ void
 void
     test_get_upto_linefeed(void)
 {
-    CU_ASSERT(0 == strcmp((char*)get_upto_linefeed("GET /?encoding=text HTTP/1.1\r\n"),
+    uint8_t *data;
+
+    data = get_upto_linefeed("GET /?encoding=text HTTP/1.1\r\n");
+    CU_ASSERT(0 == strcmp((char*) data,
                           "GET /?encoding=text HTTP/1.1"));
+    free(data);
 
-    CU_ASSERT(0 == strcmp((char*)get_upto_linefeed("Upgrade: websocket\r\n"),
+    data = get_upto_linefeed("Upgrade: websocket\r\n");
+    CU_ASSERT(0 == strcmp((char*) data,
                           "Upgrade: websocket"));
+    free(data);
 
-    CU_ASSERT(0 == strcmp((char*)get_upto_linefeed("Sec-WebSocket-Key: rRec6RPAbwPWLEsSQpGDKA==\r\n"),
+    data = get_upto_linefeed("Sec-WebSocket-Key: rRec6RPAbwPWLEsSQpGDKA==\r\n");
+    CU_ASSERT(0 == strcmp((char*) data,
                           "Sec-WebSocket-Key: rRec6RPAbwPWLEsSQpGDKA=="));
+    free(data);
 }
 
 void
@@ -301,6 +324,34 @@ void
     CU_ASSERT(0 == len);
 }
 
+void test_websocket_make_header(void)
+{
+    uint8_t *header;
+
+    //0 length data
+    header = _make_header(0, 0, WS_TEXT_FRAME);
+    CU_ASSERT(NULL == header);
+
+    //invalid end_frame int (must be 1 or 0)
+    header = _make_header(0, 3, WS_TEXT_FRAME);
+    CU_ASSERT(NULL == header);
+
+    uint8_t single_text_len5[] = {0x81, 0x05};
+    header = _make_header(5, 1, WS_TEXT_FRAME);
+    CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len5, 2));
+    free(header);
+
+    uint8_t unmasked_ping_len125[] = {0x89, 0x7d};
+    header = _make_header(125, 1, WS_PING_FRAME);
+    CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_ping_len125, 2));
+    free(header);
+
+    uint8_t unmasked_pong_len1[] = {0x8A, 0x01};
+    header = _make_header(1, 1, WS_PONG_FRAME);
+    CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_pong_len1, 2));
+    free(header);
+}
+
 void test_websocket_make_frame(void)
 {
 
@@ -343,6 +394,8 @@ int main()
                             test_websocket_parse_handshake)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket parse get handshake answer",
                             test_websocket_get_handshake_answer)) ||
+       (NULL == CU_add_test(websocket_suite, "test websocket make header",
+                            test_websocket_make_header)) ||
        (NULL == CU_add_test(websocket_suite, "test websocket make frame",
                             test_websocket_make_frame)))
    {
