@@ -350,6 +350,16 @@ void test_websocket_make_header(void)
     header = _make_header(1, 1, WS_PONG_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_pong_len1, 2));
     free(header);
+
+    uint8_t single_text_len4096[] = {0x81, 0x7e, 0x10, 0x00};
+    header = _make_header(4096, 1, WS_TEXT_FRAME);
+    CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len4096, 4));
+    free(header);
+
+    uint8_t single_text_len256[] = {0x82, 0x7e, 0x01, 0x00};
+    header = _make_header(256, 1, WS_BINARY_FRAME);
+    CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len256, 4));
+    free(header);
 }
 
 void test_websocket_make_frame(void)

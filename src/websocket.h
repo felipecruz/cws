@@ -61,9 +61,9 @@ static const char key[] PROGMEM = "Sec-WebSocket-Key: ";
 
 enum ws_frame_type {
     WS_ERROR_FRAME = 0,
-    WS_INCOMPLETE_FRAME = 2,
+    WS_INCOMPLETE_FRAME = 0x08,
     WS_TEXT_FRAME = 0x01,
-    WS_BINARY_FRAME = 0x08,
+    WS_BINARY_FRAME = 0x02,
     WS_OPENING_FRAME = 5,
     WS_CLOSING_FRAME = 6,
     WS_PING_FRAME = 0x09,

@@ -155,12 +155,12 @@ enum ws_frame_type
     }
 
     char *pre_key = malloc(strlen(hs->key1) + strlen(_HASHVALUE) + 1);
-    sprintf(pre_key, "%s%s\0", hs->key1, _HASHVALUE);  
-   
+    sprintf(pre_key, "%s%s\0", hs->key1, _HASHVALUE);
+
     SHA1(pre_key, strlen(pre_key), digest_key);
-    
+
     free(pre_key);
-    
+
     debug_print("DigestKey: %s\n", digest_key);
 
     lws_b64_encode_string(digest_key ,
@@ -201,7 +201,7 @@ enum ws_frame_type
     debug_print("(ws) %d frame type\n", type(input_frame));
 
     out_data_ptr = extract_payload(input_frame, out_len);
-    
+
     debug_print("(ws) %s content\n", (char*) out_data_ptr);
 
     frame_type = type(input_frame);
@@ -224,7 +224,7 @@ enum ws_frame_type
     header = _make_header(data_len, 1, frame_type);
 
     out_frame = header;
-    
+
     return frame_type;
 }
 
@@ -253,6 +253,10 @@ uint8_t*
         return header;
     } else if (data_len > 126 && data_len < 65536) {
         header = malloc(sizeof(uint8_t) * 4);
+        header[0] = end_byte | frame_type;
+        header[1] = (uint8_t) 0x7e;
+        header[2] = (uint8_t) (data_len >> 8);
+        header[3] = (uint8_t) data_len & 0xff;
         return header;
     } else if (data_len >= 65536) {
         header = malloc(sizeof(uint8_t) * 10);
