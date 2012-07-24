@@ -126,6 +126,7 @@ uint8_t*
 uint8_t*
     _make_header(size_t data_len,
                  enum ws_frame_type frame_type,
+                 int *header_len,
                  int options);
 
 int

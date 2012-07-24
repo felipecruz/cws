@@ -218,16 +218,17 @@ enum ws_frame_type
                   int options)
 {
     uint8_t* header;
+    int header_len;
 
     assert(data);
 
-    header = _make_header(data_len, frame_type, options);
+    header = _make_header(data_len, frame_type, &header_len, options);
 
     debug_print("(ws) %s content\n", (char*) data);
 
-    *out_frame = realloc(header, data_len + 2);
-    memcpy((*out_frame) + 2, data, data_len);
-    *out_len = data_len + 2;
+    *out_frame = realloc(header, data_len + header_len);
+    memcpy((*out_frame) + header_len, data, data_len);
+    *out_len = data_len + header_len;
 
     debug_print("(ws) %s content\n", (char*) out_frame);
 
@@ -254,6 +255,7 @@ void w64to8(uint8_t *dstbuffer, uint64_t value, size_t length) {
 uint8_t*
     _make_header(size_t data_len,
                  enum ws_frame_type frame_type,
+                 int *header_len,
                  int options)
 {
     uint8_t *header;
@@ -275,6 +277,7 @@ uint8_t*
         header = malloc(sizeof(uint8_t) * 2);
         header[0] = end_byte | frame_type;
         header[1] = (uint8_t) data_len;
+        *header_len = 2;
         return header;
     } else if (data_len > 126 && data_len < 65536) {
         header = malloc(sizeof(uint8_t) * 4);
@@ -282,12 +285,14 @@ uint8_t*
         header[1] = (uint8_t) 0x7e;
         header[2] = (uint8_t) (data_len >> 8);
         header[3] = (uint8_t) data_len & 0xff;
+        *header_len = 4;
         return header;
     } else if (data_len >= 65536) {
         header = malloc(sizeof(uint8_t) * 10);
         header[0] = end_byte | frame_type;
         header[1] = (uint8_t) 0x7f;
         w64to8(&header[2], data_len, 8);
+        *header_len = 10;
         return header;
     }
     return NULL;

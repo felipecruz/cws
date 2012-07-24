@@ -163,9 +163,10 @@ void
     test_websocket_get_frame_type(void)
 {
     CU_ASSERT(WS_TEXT_FRAME == type(single_frame));
+    CU_ASSERT(WS_INCOMPLETE_FRAME != type(single_frame));
     CU_ASSERT(WS_TEXT_FRAME == type(first_frame));
-    CU_ASSERT(WS_TEXT_FRAME != type(second_frame));
-    CU_ASSERT(WS_INCOMPLETE_FRAME == type(second_frame));
+    CU_ASSERT(WS_TEXT_FRAME == type(second_frame));
+    CU_ASSERT(WS_INCOMPLETE_FRAME != type(second_frame));
     CU_ASSERT(WS_TEXT_FRAME == type(single_frame_masked));
     CU_ASSERT(WS_BINARY_FRAME == type(len_256));
     CU_ASSERT(WS_BINARY_FRAME == type(len_64k));
@@ -327,49 +328,59 @@ void
 void test_websocket_make_header(void)
 {
     uint8_t *header;
+    int header_len = 0;
 
     //0 length data
-    header = _make_header(0, WS_TEXT_FRAME, 0);
+    header = _make_header(0, WS_TEXT_FRAME, &header_len, 0);
     CU_ASSERT(NULL == header);
+    CU_ASSERT(0 == header_len);
 
     //invalid end_frame int (must be 1 or 0)
-    header = _make_header(0, WS_TEXT_FRAME, 3);
+    header = _make_header(0, WS_TEXT_FRAME, &header_len, 3);
     CU_ASSERT(NULL == header);
+    CU_ASSERT(0 == header_len);
 
     uint8_t single_text_len5[] = {0x81, 0x05};
-    header = _make_header(5, WS_TEXT_FRAME, FINAL_FRAME);
+    header = _make_header(5, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len5, 2));
+    CU_ASSERT(2 == header_len);
     free(header);
 
     uint8_t unmasked_ping_len125[] = {0x89, 0x7d};
-    header = _make_header(125, WS_PING_FRAME, FINAL_FRAME);
+    header = _make_header(125, WS_PING_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_ping_len125, 2));
+    CU_ASSERT(2 == header_len);
     free(header);
 
     uint8_t unmasked_pong_len1[] = {0x8A, 0x01};
-    header = _make_header(1, WS_PONG_FRAME, FINAL_FRAME);
+    header = _make_header(1, WS_PONG_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_pong_len1, 2));
+    CU_ASSERT(2 == header_len);
     free(header);
 
     uint8_t single_text_len4096[] = {0x81, 0x7e, 0x10, 0x00};
-    header = _make_header(4096, WS_TEXT_FRAME, FINAL_FRAME);
+    header = _make_header(4096, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len4096, 4));
+    CU_ASSERT(4 == header_len);
     free(header);
 
     uint8_t single_text_len256[] = {0x02, 0x7e, 0x01, 0x00};
-    header = _make_header(256, WS_BINARY_FRAME, NEXT_FRAME);
+    header = _make_header(256, WS_BINARY_FRAME, &header_len, NEXT_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len256, 4));
+    CU_ASSERT(4 == header_len);
     free(header);
 
     uint8_t single_text_len319[] = {0x81, 0x7e, 0x01, 0x3f};
-    header = _make_header(319, WS_TEXT_FRAME, FINAL_FRAME);
+    header = _make_header(319, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len319, 4));
+    CU_ASSERT(4 == header_len);
     free(header);
 
-    uint8_t single_text_len64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 
+    uint8_t single_text_len64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00,
                                     0x01, 0x00, 0x00};
-    header = _make_header(65536, WS_BINARY_FRAME, FINAL_FRAME);
+    header = _make_header(65536, WS_BINARY_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == memcmp((char*) header, (char*) single_text_len64k, 10));
+    CU_ASSERT(10 == header_len);
     free(header);
 }
 
@@ -382,6 +393,14 @@ void test_websocket_make_frame(void)
     type = ws_make_frame("Hello", 5, &frame, &length, WS_TEXT_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == memcmp(single_frame, frame, 7));
     CU_ASSERT(7 == length);
+
+    type = ws_make_frame("Hel", 3, &frame, &length, WS_TEXT_FRAME, NEXT_FRAME);
+    CU_ASSERT(0 == memcmp(first_frame, frame, 5));
+    CU_ASSERT(5 == length);
+
+    type = ws_make_frame("lo", 2, &frame, &length, WS_TEXT_FRAME, FINAL_FRAME);
+    CU_ASSERT(0 == memcmp(second_frame, frame, 4));
+    CU_ASSERT(4 == length);
 }
 
 int main()
