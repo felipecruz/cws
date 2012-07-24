@@ -52,6 +52,10 @@ extern "C" {
         do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
                                 __LINE__, __func__, __VA_ARGS__); } while (0)
 
+#define FINAL_FRAME 0x1
+#define NEXT_FRAME 0x2
+#define MASKED_FRAME 0x4
+
 static const char connection[] PROGMEM = "Connection: Upgrade";
 static const char upgrade[] PROGMEM = "Upgrade: WebSocket";
 static const char host[] PROGMEM = "Host: ";
@@ -119,7 +123,9 @@ uint8_t*
     get_upto_linefeed(const char *start_from);
 
 uint8_t*
-    _make_header(size_t data_len, int end_frame, enum ws_frame_type frame_type);
+    _make_header(size_t data_len,
+                 enum ws_frame_type frame_type,
+                 int options);
 
 int
     _end_frame(uint8_t *packet);

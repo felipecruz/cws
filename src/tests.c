@@ -329,36 +329,46 @@ void test_websocket_make_header(void)
     uint8_t *header;
 
     //0 length data
-    header = _make_header(0, 0, WS_TEXT_FRAME);
+    header = _make_header(0, WS_TEXT_FRAME, 0);
     CU_ASSERT(NULL == header);
 
     //invalid end_frame int (must be 1 or 0)
-    header = _make_header(0, 3, WS_TEXT_FRAME);
+    header = _make_header(0, WS_TEXT_FRAME, 3);
     CU_ASSERT(NULL == header);
 
     uint8_t single_text_len5[] = {0x81, 0x05};
-    header = _make_header(5, 1, WS_TEXT_FRAME);
+    header = _make_header(5, WS_TEXT_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len5, 2));
     free(header);
 
     uint8_t unmasked_ping_len125[] = {0x89, 0x7d};
-    header = _make_header(125, 1, WS_PING_FRAME);
+    header = _make_header(125, WS_PING_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_ping_len125, 2));
     free(header);
 
     uint8_t unmasked_pong_len1[] = {0x8A, 0x01};
-    header = _make_header(1, 1, WS_PONG_FRAME);
+    header = _make_header(1, WS_PONG_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_pong_len1, 2));
     free(header);
 
     uint8_t single_text_len4096[] = {0x81, 0x7e, 0x10, 0x00};
-    header = _make_header(4096, 1, WS_TEXT_FRAME);
+    header = _make_header(4096, WS_TEXT_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len4096, 4));
     free(header);
 
-    uint8_t single_text_len256[] = {0x82, 0x7e, 0x01, 0x00};
-    header = _make_header(256, 1, WS_BINARY_FRAME);
+    uint8_t single_text_len256[] = {0x02, 0x7e, 0x01, 0x00};
+    header = _make_header(256, WS_BINARY_FRAME, NEXT_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len256, 4));
+    free(header);
+
+    uint8_t single_text_len319[] = {0x81, 0x7e, 0x01, 0x3f};
+    header = _make_header(319, WS_TEXT_FRAME, FINAL_FRAME);
+    CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len319, 4));
+    free(header);
+
+    uint8_t single_text_len64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+    header = _make_header(65536, WS_BINARY_FRAME, FINAL_FRAME);
+    CU_ASSERT(0 == memcmp((char*) header, (char*) single_text_len64k, 10));
     free(header);
 }
 

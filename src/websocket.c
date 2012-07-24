@@ -228,8 +228,27 @@ enum ws_frame_type
     return frame_type;
 }
 
+/* Source Code modified from
+ * http://www.gnu-darwin.org/www001/src/ports/irc/iip/work/iip-1.1.0/src/base/buffer.c
+ */
+
+//write a big endian int
+void w64to8(uint8_t *dstbuffer, uint64_t value, size_t length) {
+	if(dstbuffer == NULL) {
+		return;
+	}
+
+	for(dstbuffer += length - 1; length > 0; length--, dstbuffer--) {
+		*dstbuffer = (uint8_t)value;
+		value >>= 8;
+	}
+}
+//end of gnu-darwin code
+
 uint8_t*
-    _make_header(size_t data_len, int end_frame, enum ws_frame_type frame_type)
+    _make_header(size_t data_len,
+                 enum ws_frame_type frame_type,
+                 int options)
 {
     uint8_t *header;
     uint8_t end_byte;
@@ -238,9 +257,9 @@ uint8_t*
         return NULL;
     }
 
-    if (end_frame == 0) {
+    if ((options & FINAL_FRAME) == 0x0) {
         end_byte = 0x0;
-    } else if (end_frame == 1) {
+    } else if (options & FINAL_FRAME) {
         end_byte = 0x80;
     } else {
         return NULL;
@@ -260,6 +279,9 @@ uint8_t*
         return header;
     } else if (data_len >= 65536) {
         header = malloc(sizeof(uint8_t) * 10);
+        header[0] = end_byte | frame_type;
+        header[1] = (uint8_t) 0x7f;
+        w64to8(&header[2], data_len, 8);
         return header;
     }
     return NULL;
