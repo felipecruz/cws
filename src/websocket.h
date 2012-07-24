@@ -55,6 +55,7 @@ extern "C" {
 #define FINAL_FRAME 0x1
 #define NEXT_FRAME 0x2
 #define MASKED_FRAME 0x4
+#define WS_FRAME 0x0
 
 static const char connection[] PROGMEM = "Connection: Upgrade";
 static const char upgrade[] PROGMEM = "Upgrade: WebSocket";

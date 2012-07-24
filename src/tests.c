@@ -165,8 +165,6 @@ void
     CU_ASSERT(WS_TEXT_FRAME == type(single_frame));
     CU_ASSERT(WS_INCOMPLETE_FRAME != type(single_frame));
     CU_ASSERT(WS_TEXT_FRAME == type(first_frame));
-    CU_ASSERT(WS_TEXT_FRAME == type(second_frame));
-    CU_ASSERT(WS_INCOMPLETE_FRAME != type(second_frame));
     CU_ASSERT(WS_TEXT_FRAME == type(single_frame_masked));
     CU_ASSERT(WS_BINARY_FRAME == type(len_256));
     CU_ASSERT(WS_BINARY_FRAME == type(len_64k));
@@ -398,7 +396,7 @@ void test_websocket_make_frame(void)
     CU_ASSERT(0 == memcmp(first_frame, frame, 5));
     CU_ASSERT(5 == length);
 
-    type = ws_make_frame("lo", 2, &frame, &length, WS_TEXT_FRAME, FINAL_FRAME);
+    type = ws_make_frame("lo", 2, &frame, &length, WS_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == memcmp(second_frame, frame, 4));
     CU_ASSERT(4 == length);
 }
