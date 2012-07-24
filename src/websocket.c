@@ -155,7 +155,7 @@ enum ws_frame_type
     }
 
     char *pre_key = malloc(strlen(hs->key1) + strlen(_HASHVALUE) + 1);
-    sprintf(pre_key, "%s%s\0", hs->key1, _HASHVALUE);
+    sprintf(pre_key, "%s%s", hs->key1, _HASHVALUE);
 
     SHA1(pre_key, strlen(pre_key), digest_key);
 
