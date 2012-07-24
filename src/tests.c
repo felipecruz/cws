@@ -366,7 +366,8 @@ void test_websocket_make_header(void)
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len319, 4));
     free(header);
 
-    uint8_t single_text_len64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+    uint8_t single_text_len64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                                    0x01, 0x00, 0x00};
     header = _make_header(65536, WS_BINARY_FRAME, FINAL_FRAME);
     CU_ASSERT(0 == memcmp((char*) header, (char*) single_text_len64k, 10));
     free(header);
@@ -374,7 +375,13 @@ void test_websocket_make_header(void)
 
 void test_websocket_make_frame(void)
 {
+    size_t length;
+    uint8_t *frame;
+    enum ws_frame_type type;
 
+    type = ws_make_frame("Hello", 5, &frame, &length, WS_TEXT_FRAME, FINAL_FRAME);
+    CU_ASSERT(0 == memcmp(single_frame, frame, 7));
+    CU_ASSERT(7 == length);
 }
 
 int main()

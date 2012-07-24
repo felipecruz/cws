@@ -98,9 +98,10 @@ enum ws_frame_type
 enum ws_frame_type
     ws_make_frame(uint8_t *data,
                   size_t data_len,
-                  uint8_t *out_frame,
+                  uint8_t **out_frame,
                   size_t *out_len,
-                  enum ws_frame_type frame_type);
+                  enum ws_frame_type frame_type,
+                  int options);
 
 enum ws_frame_type
     ws_parse_input_frame(uint8_t *input_frame,

@@ -212,23 +212,29 @@ enum ws_frame_type
 enum ws_frame_type
     ws_make_frame(uint8_t *data,
                   size_t data_len,
-                  uint8_t *out_frame,
+                  uint8_t **out_frame,
                   size_t *out_len,
-                  enum ws_frame_type frame_type)
+                  enum ws_frame_type frame_type,
+                  int options)
 {
     uint8_t* header;
 
-    assert(out_frame);
     assert(data);
 
-    header = _make_header(data_len, 1, frame_type);
+    header = _make_header(data_len, frame_type, options);
 
-    out_frame = header;
+    debug_print("(ws) %s content\n", (char*) data);
+
+    *out_frame = realloc(header, data_len + 2);
+    memcpy((*out_frame) + 2, data, data_len);
+    *out_len = data_len + 2;
+
+    debug_print("(ws) %s content\n", (char*) out_frame);
 
     return frame_type;
 }
 
-/* Source Code modified from
+/* Source Code from Gnu-Darwin Project
  * http://www.gnu-darwin.org/www001/src/ports/irc/iip/work/iip-1.1.0/src/base/buffer.c
  */
 
