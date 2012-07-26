@@ -1,5 +1,3 @@
-CC="gcc"
-
 CFLAGS=-lcrypto -std=c99
 
 COVERAGE_FLAGS=--coverage
