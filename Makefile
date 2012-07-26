@@ -2,6 +2,9 @@ CFLAGS=-lcrypto -std=c99
 
 COVERAGE_FLAGS=--coverage
 
+all:
+	$(CC) src/b64.c src/websocket.c $(CFLAGS) -shared -o cws.so -DDEBUG=0 -DTEST=0
+
 test:
 	$(CC) -g src/b64.c src/websocket.c \
 		  src/tests.c \
