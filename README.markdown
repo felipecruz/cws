@@ -3,6 +3,8 @@ cws
 
 c websocket library
 
+[![Build Status](https://secure.travis-ci.org/felipecruz/cws.png)](http://travis-ci.org/felipecruz/cws)
+
 Testing
 -------
 
