@@ -278,7 +278,26 @@ void
 void
     test_websocket_parse_handshake(void)
 {
+    struct handshake hs;
+    enum ws_frame_type type;
+    uint8_t handshake[] = "GET /mychat HTTP/1.1\r\n"
+                          "Host: server.example.com\r\n"
+                          "Upgrade: websocket\r\n"
+                          "Connection: Upgrade\r\n"
+                          "Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==\r\n"
+                          "Sec-WebSocket-Protocol: chat\r\n"
+                          "Sec-WebSocket-Version: 13\r\n"
+                          "Origin: http://example.com\r\n";
 
+    nullhandshake(&hs);
+
+    type = ws_parse_handshake(handshake, strlen(handshake), &hs);
+    CU_ASSERT(type == WS_OPENING_FRAME);
+
+    CU_ASSERT(0 == strcmp("http://example.com", hs.origin));
+    CU_ASSERT(0 == strcmp("chat", hs.protocol));
+    CU_ASSERT(0 == strcmp("x3JJHMbDL1EzLkh9GBhXDw==", hs.key1));
+    CU_ASSERT(0 == strcmp("server.example.com", hs.host));
 }
 
 void
