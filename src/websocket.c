@@ -222,7 +222,7 @@ enum ws_frame_type
 
     assert(data);
 
-    header = _make_header(data_len, frame_type, &header_len, options);
+    header = make_header(data_len, frame_type, &header_len, options);
 
     debug_print("(ws) %s content\n", (char*) data);
 
@@ -253,7 +253,7 @@ void w64to8(uint8_t *dstbuffer, uint64_t value, size_t length) {
 //end of gnu-darwin code
 
 uint8_t*
-    _make_header(size_t data_len,
+    make_header(size_t data_len,
                  enum ws_frame_type frame_type,
                  int *header_len,
                  int options)

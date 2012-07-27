@@ -41,7 +41,7 @@ void
     uint8_t *target;
     uint8_t small_frame[] = {0x89};
     enum ws_frame_type type;
-    uint64_t length;
+    size_t length;
 
     type = ws_parse_input_frame(NULL, 0, target, &length);
 
@@ -95,7 +95,7 @@ void
     CU_ASSERT(961-4 == length);
     // 961 (total payload size) - 4 (fin, srvs, opcode, payload length) bytes
     CU_ASSERT(961-4 == _payload_length(frame1));
-    CU_ASSERT(NULL != extract_payload(frame1, &length));
+    CU_ASSERT(NULL != extract_payload(frame1, (uint64_t*) &length));
 
     free(frame1);
     close(fd);
@@ -110,7 +110,7 @@ void
     CU_ASSERT(WS_TEXT_FRAME == type);
     CU_ASSERT(90402-10 == length);
     CU_ASSERT(90402-10 == _payload_length(frame1));
-    CU_ASSERT(NULL != extract_payload(frame1, &length));
+    CU_ASSERT(NULL != extract_payload(frame1, (uint64_t*) &length));
 
     free(frame1);
     close(fd);
@@ -122,7 +122,7 @@ void
     CU_ASSERT(90404-14 == length);
     CU_ASSERT(90404-14 == _payload_length(client_big_masked_frame));
     CU_ASSERT(NULL != mask);
-    CU_ASSERT(NULL != extract_payload(client_big_masked_frame, &length));
+    CU_ASSERT(NULL != extract_payload(client_big_masked_frame, (uint64_t*) &length));
     free(mask);
 
     type = ws_parse_input_frame(client_medium_masked_frame, 90405, target, &length);
@@ -132,7 +132,7 @@ void
     CU_ASSERT(333-14 == length);
     CU_ASSERT(333-14 == _payload_length(client_medium_masked_frame));
     CU_ASSERT(NULL != mask);
-    CU_ASSERT(NULL != extract_payload(client_medium_masked_frame, &length));
+    CU_ASSERT(NULL != extract_payload(client_medium_masked_frame, (uint64_t*) &length));
     free(mask);
 }
 
@@ -348,54 +348,54 @@ void test_websocket_make_header(void)
     int header_len = 0;
 
     //0 length data
-    header = _make_header(0, WS_TEXT_FRAME, &header_len, 0);
+    header = make_header(0, WS_TEXT_FRAME, &header_len, 0);
     CU_ASSERT(NULL == header);
     CU_ASSERT(0 == header_len);
 
     //invalid end_frame int (must be 1 or 0)
-    header = _make_header(0, WS_TEXT_FRAME, &header_len, 3);
+    header = make_header(0, WS_TEXT_FRAME, &header_len, 3);
     CU_ASSERT(NULL == header);
     CU_ASSERT(0 == header_len);
 
     uint8_t single_text_len5[] = {0x81, 0x05};
-    header = _make_header(5, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
+    header = make_header(5, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len5, 2));
     CU_ASSERT(2 == header_len);
     free(header);
 
     uint8_t unmasked_ping_len125[] = {0x89, 0x7d};
-    header = _make_header(125, WS_PING_FRAME, &header_len, FINAL_FRAME);
+    header = make_header(125, WS_PING_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_ping_len125, 2));
     CU_ASSERT(2 == header_len);
     free(header);
 
     uint8_t unmasked_pong_len1[] = {0x8A, 0x01};
-    header = _make_header(1, WS_PONG_FRAME, &header_len, FINAL_FRAME);
+    header = make_header(1, WS_PONG_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) unmasked_pong_len1, 2));
     CU_ASSERT(2 == header_len);
     free(header);
 
     uint8_t single_text_len4096[] = {0x81, 0x7e, 0x10, 0x00};
-    header = _make_header(4096, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
+    header = make_header(4096, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len4096, 4));
     CU_ASSERT(4 == header_len);
     free(header);
 
     uint8_t single_text_len256[] = {0x02, 0x7e, 0x01, 0x00};
-    header = _make_header(256, WS_BINARY_FRAME, &header_len, NEXT_FRAME);
+    header = make_header(256, WS_BINARY_FRAME, &header_len, NEXT_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len256, 4));
     CU_ASSERT(4 == header_len);
     free(header);
 
     uint8_t single_text_len319[] = {0x81, 0x7e, 0x01, 0x3f};
-    header = _make_header(319, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
+    header = make_header(319, WS_TEXT_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == strncmp((char*) header, (char*) single_text_len319, 4));
     CU_ASSERT(4 == header_len);
     free(header);
 
     uint8_t single_text_len64k[] = {0x82, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00,
                                     0x01, 0x00, 0x00};
-    header = _make_header(65536, WS_BINARY_FRAME, &header_len, FINAL_FRAME);
+    header = make_header(65536, WS_BINARY_FRAME, &header_len, FINAL_FRAME);
     CU_ASSERT(0 == memcmp((char*) header, (char*) single_text_len64k, 10));
     CU_ASSERT(10 == header_len);
     free(header);

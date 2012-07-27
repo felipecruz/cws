@@ -117,10 +117,10 @@ uint8_t*
     extract_payload(uint8_t* frame, uint64_t *length);
 
 uint8_t*
-    _make_header(size_t data_len,
-                 enum ws_frame_type frame_type,
-                 int *header_len,
-                 int options);
+    make_header(size_t data_len,
+                enum ws_frame_type frame_type,
+                int *header_len,
+                int options);
 
 #ifdef  __cplusplus
 }
