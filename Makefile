@@ -8,12 +8,16 @@ all:
 test:
 	$(CC) -g src/b64.c src/websocket.c \
 		  src/tests.c \
+	$(CC) -g -I src/ src/b64.c src/websocket.c \
+		  tests/tests.c \
 		  $(CFLAGS) -lcunit -o test_cws -DDEBUG=0 -DTEST=1
 	      ./test_cws
 
 coverage:
 	$(CC) -g src/b64.c src/websocket.c \
 		  src/tests.c \
+	$(CC) -g -I src/ src/b64.c src/websocket.c \
+		  tests/tests.c \
 		  -lcunit $(CFLAGS) $(COVERAGE_FLAGS) -o coverage_cws -DDEBUG=0 -DTEST=1
 	      ./coverage_cws
 		  lcov --directory . --capture --output-file app.info
