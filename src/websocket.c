@@ -186,7 +186,7 @@ enum ws_frame_type
     ws_parse_input_frame(uint8_t *input_frame,
                          size_t input_len,
                          uint8_t *out_data_ptr,
-                         uint64_t *out_len)
+                         size_t *out_len)
 {
     enum ws_frame_type frame_type;
 
@@ -200,7 +200,7 @@ enum ws_frame_type
 
     debug_print("(ws) %d frame type\n", type(input_frame));
 
-    out_data_ptr = extract_payload(input_frame, out_len);
+    out_data_ptr = extract_payload(input_frame, (uint64_t*)out_len);
 
     debug_print("(ws) %s content\n", (char*) out_data_ptr);
 
