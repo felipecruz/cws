@@ -27,16 +27,9 @@
 #include "websocket.h"
 #include "b64.h"
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 1
-#endif
-
 #define _HASHVALUE "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
-static char rn[] PROGMEM = "\r\n";
+static char rn[] = "\r\n";
 
 void
     nullhandshake(struct handshake *hs)
@@ -52,7 +45,7 @@ uint8_t*
     get_upto_linefeed(const char *start_from)
 {
     uint8_t *write_to;
-    uint8_t new_length = strstr_P(start_from, rn) - start_from;
+    uint8_t new_length = strstr(start_from, rn) - start_from;
 
     assert(new_length);
 
@@ -90,46 +83,46 @@ enum ws_frame_type
     hs->resource = (char *)malloc(second - first + 1); // +1 is for \x00 symbol
     assert(hs->resource);
 
-    if (sscanf_P(input_ptr, PSTR("GET %s HTTP/1.1\r\n"), hs->resource) != 1)
+    if (sscanf(input_ptr, "GET %s HTTP/1.1\r\n", hs->resource) != 1)
         return WS_ERROR_FRAME;
-    input_ptr = strstr_P(input_ptr, rn) + 2;
+    input_ptr = strstr(input_ptr, rn) + 2;
 
     /*
         parse next lines
      */
     #define input_ptr_len (input_len - (input_ptr-input_frame))
     #define prepare(x) do {if (x) { free(x); x = NULL; }} while(0)
-    uint8_t connection_flag = FALSE;
-    uint8_t upgrade_flag = FALSE;
+    uint8_t connection_flag = 0;
+    uint8_t upgrade_flag = 0;
     while (input_ptr < end_ptr && input_ptr[0] != '\r' && input_ptr[1] != '\n') {
-        if (memcmp_P(input_ptr, host, strlen_P(host)) == 0) {
-            input_ptr += strlen_P(host);
+        if (memcmp(input_ptr, host, strlen(host)) == 0) {
+            input_ptr += strlen(host);
             prepare(hs->host);
             hs->host = get_upto_linefeed(input_ptr);
         } else
-            if (memcmp_P(input_ptr, origin, strlen_P(origin)) == 0) {
-            input_ptr += strlen_P(origin);
+            if (memcmp(input_ptr, origin, strlen(origin)) == 0) {
+            input_ptr += strlen(origin);
             prepare(hs->origin);
             hs->origin = get_upto_linefeed(input_ptr);
         } else
-            if (memcmp_P(input_ptr, protocol, strlen_P(protocol)) == 0) {
-            input_ptr += strlen_P(protocol);
+            if (memcmp(input_ptr, protocol, strlen(protocol)) == 0) {
+            input_ptr += strlen(protocol);
             prepare(hs->protocol);
             hs->protocol = get_upto_linefeed(input_ptr);
         } else
-            if (memcmp_P(input_ptr, key, strlen_P(key)) == 0) {
-            input_ptr += strlen_P(key);
+            if (memcmp(input_ptr, key, strlen(key)) == 0) {
+            input_ptr += strlen(key);
             prepare(hs->key1);
             hs->key1 = get_upto_linefeed(input_ptr);
         } else
-            if (memcmp_P(input_ptr, connection, strlen_P(connection)) == 0) {
-            connection_flag = TRUE;
+            if (memcmp(input_ptr, connection, strlen(connection)) == 0) {
+            connection_flag = 1;
         } else
-            if (memcmp_P(input_ptr, upgrade, strlen_P(upgrade)) == 0) {
-            upgrade_flag = TRUE;
+            if (memcmp(input_ptr, upgrade, strlen(upgrade)) == 0) {
+            upgrade_flag = 1;
         };
 
-        input_ptr = strstr_P(input_ptr, rn) + 2;
+        input_ptr = strstr(input_ptr, rn) + 2;
     }
 
     // we have read all data, so check them
@@ -170,11 +163,11 @@ enum ws_frame_type
 
     debug_print("AcceptKey: %s\n", accept_key);
 
-    unsigned int written = sprintf_P((char *)out_frame,
-            PSTR("HTTP/1.1 101 Switching Protocols\r\n"
+    unsigned int written = sprintf((char *)out_frame,
+            "HTTP/1.1 101 Switching Protocols\r\n"
             "Upgrade: websocket\r\n"
             "Connection: Upgrade\r\n"
-            "Sec-WebSocket-Accept: %s\r\n\r\n"), accept_key);
+            "Sec-WebSocket-Accept: %s\r\n\r\n", accept_key);
 
     *out_len = written;
     debug_print("Written %d\n", written);

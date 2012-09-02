@@ -36,17 +36,6 @@ extern "C" {
 #include <string.h>
 #include <stdio.h> /* sscanf */
 #include <stddef.h> /* size_t */
-#ifdef __AVR__
-    #include <avr/pgmspace.h>
-#else
-    #define PROGMEM
-    #define PSTR
-    #define strstr_P strstr
-    #define sscanf_P sscanf
-    #define sprintf_P sprintf
-    #define strlen_P strlen
-    #define memcmp_P memcmp
-#endif
 
 #define debug_print(fmt, ...) \
         do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
@@ -57,12 +46,12 @@ extern "C" {
 #define MASKED_FRAME 0x4
 #define WS_FRAME 0x0
 
-static const char connection[] PROGMEM = "Connection: Upgrade";
-static const char upgrade[] PROGMEM = "Upgrade: WebSocket";
-static const char host[] PROGMEM = "Host: ";
-static const char origin[] PROGMEM = "Origin: ";
-static const char protocol[] PROGMEM = "Sec-WebSocket-Protocol: ";
-static const char key[] PROGMEM = "Sec-WebSocket-Key: ";
+static const char connection[] = "Connection: Upgrade";
+static const char upgrade[] = "Upgrade: WebSocket";
+static const char host[] = "Host: ";
+static const char origin[] = "Origin: ";
+static const char protocol[] = "Sec-WebSocket-Protocol: ";
+static const char key[] = "Sec-WebSocket-Key: ";
 
 enum ws_frame_type {
     WS_ERROR_FRAME = 0,
