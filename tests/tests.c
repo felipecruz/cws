@@ -3,11 +3,8 @@
  *
  *       Filename:  tests.c
  *
- *    Description:
- *
  *        Version:  0.1
  *        Created:  03/06/2012 10:09:02 PM
- *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  Felipe J Cruz (felipecruz@loogica.net),
