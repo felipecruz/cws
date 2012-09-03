@@ -295,6 +295,20 @@ void
     CU_ASSERT(0 == strcmp("chat", hs.protocol));
     CU_ASSERT(0 == strcmp("x3JJHMbDL1EzLkh9GBhXDw==", hs.key1));
     CU_ASSERT(0 == strcmp("server.example.com", hs.host));
+
+    uint8_t ihandshake[] = "GET /mychat HTTP/1.1\r\n"
+                           "Host: server.example.com\r\n"
+                           "Upgrade: wEbSoCkEt\r\n"
+                           "Connection: UpGradE\r\n"
+                           "Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==\r\n"
+                           "Sec-WebSocket-Protocol: chat\r\n"
+                           "Sec-WebSocket-Version: 13\r\n"
+                           "Origin: http://example.com\r\n";
+
+    nullhandshake(&hs);
+
+    type = ws_parse_handshake(ihandshake, strlen(ihandshake), &hs);
+    CU_ASSERT(type == WS_OPENING_FRAME);
 }
 
 void

@@ -115,12 +115,14 @@ enum ws_frame_type
             prepare(hs->key1);
             hs->key1 = get_upto_linefeed(input_ptr);
         } else
-            if (memcmp(input_ptr, connection, strlen(connection)) == 0) {
+            if (memcmp(input_ptr, connection, strlen(connection)) == 0 &&
+                strncasecmp(&input_ptr[strlen(connection)], upgrade_str, 7) == 0) {
             connection_flag = 1;
         } else
-            if (memcmp(input_ptr, upgrade, strlen(upgrade)) == 0) {
+            if (memcmp(input_ptr, upgrade, strlen(upgrade)) == 0 &&
+                strncasecmp(&input_ptr[strlen(upgrade)], websocket_str, 9) == 0) {
             upgrade_flag = 1;
-        };
+        }
 
         input_ptr = strstr(input_ptr, rn) + 2;
     }

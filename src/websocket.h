@@ -46,8 +46,10 @@ extern "C" {
 #define MASKED_FRAME 0x4
 #define WS_FRAME 0x0
 
-static const char connection[] = "Connection: Upgrade";
-static const char upgrade[] = "Upgrade: WebSocket";
+static const char connection[] = "Connection: ";
+static const char upgrade_str[] = "upgrade";
+static const char upgrade[] = "Upgrade: ";
+static const char websocket_str[] = "websocket";
 static const char host[] = "Host: ";
 static const char origin[] = "Origin: ";
 static const char protocol[] = "Sec-WebSocket-Protocol: ";
