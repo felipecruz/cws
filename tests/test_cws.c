@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "websocket.h"
+#include "cws.h"
 #include "CUnit/Basic.h"
 #include "test_packages.h"
 

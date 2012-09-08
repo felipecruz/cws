@@ -22,9 +22,8 @@
  *
  */
 
-#ifndef WEBSOCKET_H
-#define WEBSOCKET_H
-
+#ifndef CWS_H
+#define CWS_H
 
 #ifdef  __cplusplus
 extern "C" {
@@ -60,8 +59,8 @@ enum ws_frame_type {
     WS_INCOMPLETE_FRAME = 0x08,
     WS_TEXT_FRAME = 0x01,
     WS_BINARY_FRAME = 0x02,
-    WS_OPENING_FRAME = 5,
-    WS_CLOSING_FRAME = 6,
+    WS_OPENING_FRAME = 0x05,
+    WS_CLOSING_FRAME = 0x06,
     WS_PING_FRAME = 0x09,
     WS_PONG_FRAME = 0x0A
 };
@@ -148,4 +147,4 @@ uint8_t*
 uint8_t*
     unmask(uint8_t *packet, uint64_t length, uint8_t *mask);
 #endif
-#endif  /* WEBSOCKET_H */
+#endif  /* CWS_H */
