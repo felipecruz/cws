@@ -70,7 +70,7 @@ struct handshake {
     char *host;
     char *origin;
     char *protocol;
-    char *key1;
+    char *key;
 };
 
 void

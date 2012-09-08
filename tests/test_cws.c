@@ -144,7 +144,7 @@ void
     CU_ASSERT(NULL == hs.origin);
     CU_ASSERT(NULL == hs.protocol);
     CU_ASSERT(NULL == hs.resource);
-    CU_ASSERT(NULL == hs.key1);
+    CU_ASSERT(NULL == hs.key);
 }
 
 void
@@ -293,7 +293,7 @@ void
 
     CU_ASSERT(0 == strcmp("http://example.com", hs.origin));
     CU_ASSERT(0 == strcmp("chat", hs.protocol));
-    CU_ASSERT(0 == strcmp("x3JJHMbDL1EzLkh9GBhXDw==", hs.key1));
+    CU_ASSERT(0 == strcmp("x3JJHMbDL1EzLkh9GBhXDw==", hs.key));
     CU_ASSERT(0 == strcmp("server.example.com", hs.host));
 
     uint8_t ihandshake[] = "GET /mychat HTTP/1.1\r\n"
@@ -325,7 +325,7 @@ void
 
     out = (uint8_t*) malloc(sizeof(uint8_t) * 4096);
 
-    hs.key1 = key;
+    hs.key = key;
     type = ws_get_handshake_answer(&hs, out, &len);
 
     CU_ASSERT(0 == strcmp((char*)out,
@@ -345,7 +345,7 @@ void
     CU_ASSERT(type == WS_ERROR_FRAME);
     CU_ASSERT(0 == len);
 
-    hs.key1 = NULL;
+    hs.key = NULL;
 
     type = ws_get_handshake_answer(&hs, out, &len);
 

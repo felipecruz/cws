@@ -35,7 +35,7 @@ void
     nullhandshake(struct handshake *hs)
 {
     hs->host = NULL;
-    hs->key1 = NULL;
+    hs->key = NULL;
     hs->origin = NULL;
     hs->protocol = NULL;
     hs->resource = NULL;
@@ -112,8 +112,8 @@ enum ws_frame_type
         } else
             if (memcmp(input_ptr, key, strlen(key)) == 0) {
             input_ptr += strlen(key);
-            prepare(hs->key1);
-            hs->key1 = get_upto_linefeed(input_ptr);
+            prepare(hs->key);
+            hs->key = get_upto_linefeed(input_ptr);
         } else
             if (memcmp(input_ptr, connection, strlen(connection)) == 0 &&
                 strncasecmp(&input_ptr[strlen(connection)], upgrade_str, 7) == 0) {
@@ -144,13 +144,13 @@ enum ws_frame_type
     unsigned char accept_key[30];
     unsigned char digest_key[20];
 
-    if (hs->key1 == NULL || out_frame == NULL) {
+    if (hs->key == NULL || out_frame == NULL) {
         *out_len = 0;
         return WS_ERROR_FRAME;
     }
 
-    char *pre_key = malloc(strlen(hs->key1) + strlen(_HASHVALUE) + 1);
-    sprintf(pre_key, "%s%s", hs->key1, _HASHVALUE);
+    char *pre_key = malloc(strlen(hs->key) + strlen(_HASHVALUE) + 1);
+    sprintf(pre_key, "%s%s", hs->key, _HASHVALUE);
 
     SHA1(pre_key, strlen(pre_key), digest_key);
 
