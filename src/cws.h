@@ -144,10 +144,11 @@ enum ws_frame_type
  * WS_PING_FRAME - Ping Frame
  * WS_PONG_FRAME - Pong Frame
  * WS_CLOSING_FRAME - Colsing frame
- * WS_FRAME - this is a special case when the farame is a continuation frame from
- *            another frame. In this case, the frame type is already specified on
- *            the first frame thus, the correct way to create this second for N frame
- *            is to set it's type to WS_FRAME
+ * WS_FRAME - this is a special case when the farame is a continuation
+ *            frame from another frame. In this case, the frame type is
+ *            already specified on the first frame thus, the correct way
+ *            to create this second for N frame is to set it's type
+ *            to WS_FRAME
  *
  * Values for option
  *
