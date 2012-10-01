@@ -309,6 +309,24 @@ void
 
     type = ws_parse_handshake(ihandshake, strlen(ihandshake), &hs);
     CU_ASSERT(type == WS_OPENING_FRAME);
+
+    /* mozilla firefox request */
+    uint8_t mhandshake[] = "GET /?encoding=text HTTP/1.1\r\n"
+                           "Host: rp:9090\r\n"
+                           "Accept-Language: en-us,en;q=0.5\r\n"
+                           "Accept-Encoding: gzip, deflate\r\n"
+                           "Connection: keep-alive, Upgrade\r\n"
+                           "Sec-WebSocket-Version: 13\r\n"
+                           "Origin: http://www.websocket.org\r\n"
+                           "Sec-WebSocket-Key: Gkh97AFkYNotSwJSdgvXEA==\r\n"
+                           "Pragma: no-cache\r\n"
+                           "Cache-Control: no-cache\r\n"
+                           "Upgrade: websocket\r\n";
+
+    nullhandshake(&hs);
+
+    type = ws_parse_handshake(mhandshake, strlen(mhandshake), &hs);
+    CU_ASSERT(type == WS_OPENING_FRAME);
 }
 
 void

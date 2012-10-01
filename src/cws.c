@@ -116,7 +116,8 @@ enum ws_frame_type
             hs->key = get_upto_linefeed(input_ptr);
         } else
             if (memcmp(input_ptr, connection, strlen(connection)) == 0 &&
-                strncasecmp(&input_ptr[strlen(connection)], upgrade_str, 7) == 0) {
+                (strncasecmp(&input_ptr[strlen(connection)], upgrade_str, 7) == 0 ||
+                strcasestr(&input_ptr[strlen(connection)], upgrade_str) != NULL)) {
             connection_flag = 1;
         } else
             if (memcmp(input_ptr, upgrade, strlen(upgrade)) == 0 &&
