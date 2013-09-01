@@ -287,8 +287,9 @@ void
     nullhandshake(&hs);
 
     type = ws_parse_handshake(handshake, strlen(handshake), &hs);
-    CU_ASSERT(type == WS_OPENING_FRAME);
 
+    CU_ASSERT(type == WS_OPENING_FRAME);
+    CU_ASSERT(0 == strcmp("/mychat", hs.resource));
     CU_ASSERT(0 == strcmp("http://example.com", hs.origin));
     CU_ASSERT(0 == strcmp("chat", hs.protocol));
     CU_ASSERT(0 == strcmp("x3JJHMbDL1EzLkh9GBhXDw==", hs.key));
@@ -306,7 +307,13 @@ void
     nullhandshake(&hs);
 
     type = ws_parse_handshake(ihandshake, strlen(ihandshake), &hs);
+
     CU_ASSERT(type == WS_OPENING_FRAME);
+    CU_ASSERT(0 == strcmp("/mychat", hs.resource));
+    CU_ASSERT(0 == strcmp("http://example.com", hs.origin));
+    CU_ASSERT(0 == strcmp("chat", hs.protocol));
+    CU_ASSERT(0 == strcmp("x3JJHMbDL1EzLkh9GBhXDw==", hs.key));
+    CU_ASSERT(0 == strcmp("server.example.com", hs.host));
 
     /* mozilla firefox request */
     uint8_t mhandshake[] = "GET /?encoding=text HTTP/1.1\r\n"
@@ -324,7 +331,13 @@ void
     nullhandshake(&hs);
 
     type = ws_parse_handshake(mhandshake, strlen(mhandshake), &hs);
+
     CU_ASSERT(type == WS_OPENING_FRAME);
+    CU_ASSERT(0 == strcmp("/?encoding=text", hs.resource));
+    CU_ASSERT(0 == strcmp("http://www.websocket.org", hs.origin));
+    CU_ASSERT(NULL == hs.protocol);
+    CU_ASSERT(0 == strcmp("Gkh97AFkYNotSwJSdgvXEA==", hs.key));
+    CU_ASSERT(0 == strcmp("rp:9090", hs.host));
 
     uint8_t invalidhs1[] = "GET /?encoding=text HTTP/1.1";
 
