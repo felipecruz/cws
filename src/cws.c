@@ -119,7 +119,11 @@ enum ws_frame_type
             upgrade_flag = 1;
         }
 
-        input_ptr = strstr(input_ptr, rn) + 2;
+        input_ptr = strstr(input_ptr, rn);
+        if (input_ptr)
+            input_ptr += 2;
+        else
+            break;
     }
 
     // we have read all data, so check them
