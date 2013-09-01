@@ -90,29 +90,23 @@ enum ws_frame_type
     /*
         parse next lines
      */
-    #define input_ptr_len (input_len - (input_ptr-input_frame))
-    #define prepare(x) do {if (x) { free(x); x = NULL; }} while(0)
     uint8_t connection_flag = 0;
     uint8_t upgrade_flag = 0;
     while (input_ptr < end_ptr && input_ptr[0] != '\r' && input_ptr[1] != '\n') {
         if (memcmp(input_ptr, host, strlen(host)) == 0) {
             input_ptr += strlen(host);
-            prepare(hs->host);
             hs->host = get_upto_linefeed(input_ptr);
         } else
             if (memcmp(input_ptr, origin, strlen(origin)) == 0) {
             input_ptr += strlen(origin);
-            prepare(hs->origin);
             hs->origin = get_upto_linefeed(input_ptr);
         } else
             if (memcmp(input_ptr, protocol, strlen(protocol)) == 0) {
             input_ptr += strlen(protocol);
-            prepare(hs->protocol);
             hs->protocol = get_upto_linefeed(input_ptr);
         } else
             if (memcmp(input_ptr, key, strlen(key)) == 0) {
             input_ptr += strlen(key);
-            prepare(hs->key);
             hs->key = get_upto_linefeed(input_ptr);
         } else
             if (memcmp(input_ptr, connection, strlen(connection)) == 0 &&
