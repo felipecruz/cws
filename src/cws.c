@@ -76,7 +76,7 @@ enum ws_frame_type
     if (!second)
         return WS_ERROR_FRAME;
 
-    char *third = strchr((const uint8_t*)input_frame, '\r');
+    char *third = strchr((const uint8_t*)second, '\r');
     if (!third)
         return WS_ERROR_FRAME;
 
