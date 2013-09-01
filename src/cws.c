@@ -76,10 +76,10 @@ enum ws_frame_type
     if (!second)
         return WS_ERROR_FRAME;
 
-    if (hs->resource) {
-        free(hs->resource);
-        hs->resource = NULL;
-    }
+    char *third = strchr((const uint8_t*)input_frame, '\r');
+    if (!third)
+        return WS_ERROR_FRAME;
+
     hs->resource = (char *)malloc(second - first + 1); // +1 is for \x00 symbol
     assert(hs->resource);
 

@@ -327,6 +327,13 @@ void
 
     type = ws_parse_handshake(mhandshake, strlen(mhandshake), &hs);
     CU_ASSERT(type == WS_OPENING_FRAME);
+
+    uint8_t invalidhs1[] = "GET /?encoding=text HTTP/1.1";
+
+    nullhandshake(&hs);
+
+    type = ws_parse_handshake(invalidhs1, strlen(invalidhs1), &hs);
+    CU_ASSERT(type == WS_ERROR_FRAME);
 }
 
 void
