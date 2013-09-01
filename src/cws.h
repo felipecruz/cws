@@ -114,8 +114,7 @@ enum ws_frame_type
                             size_t *out_len);
 
 /* Parse a websocket input frame where data is in input_frame and data length in
- * input_len and point out_data_ptr to payload data and change out_len to
- * payload data length.
+ * input_len.
  *
  * return enum ws_frame_type
  * WS_ERROR_FRAME if input_frame is NULL
@@ -128,9 +127,7 @@ enum ws_frame_type
  */
 enum ws_frame_type
     ws_parse_input_frame(uint8_t *input_frame,
-                         size_t input_len,
-                         uint8_t *out_data_ptr,
-                         size_t *out_len);
+                         size_t input_len);
 
 /*
  * Given some data and it's length, create a websocket frame of type

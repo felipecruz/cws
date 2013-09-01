@@ -35,34 +35,31 @@ void
     int fd;
     uint8_t *frame1;
     uint8_t *mask;
-    uint8_t *target;
     uint8_t small_frame[] = {0x89};
     enum ws_frame_type type;
     size_t length;
 
-    type = ws_parse_input_frame(NULL, 0, target, &length);
+    type = ws_parse_input_frame(NULL, 0);
 
     CU_ASSERT(WS_ERROR_FRAME == type);
-    CU_ASSERT(0 == length);
 
-    type = ws_parse_input_frame(NULL, 10, target, &length);
+    type = ws_parse_input_frame(NULL, 10);
 
     CU_ASSERT(WS_ERROR_FRAME == type);
-    CU_ASSERT(0 == length);
 
-    type = ws_parse_input_frame(small_frame, 1, target, &length);
+    type = ws_parse_input_frame(small_frame, 1);
 
     CU_ASSERT(WS_INCOMPLETE_FRAME == type);
-    CU_ASSERT(0 == length);
 
     fd = open("tests/ws_frame.txt", O_RDONLY);
     frame1 = malloc(sizeof(uint8_t) * 10);
 
     read(fd, frame1, 10);
 
-    type = ws_parse_input_frame(frame1, 10, target, &length);
+    type = ws_parse_input_frame(frame1, 10);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(NULL != extract_payload(frame1, (uint64_t*) &length));
     CU_ASSERT(10-6 == length);
 
     free(frame1);
@@ -73,9 +70,10 @@ void
 
     read(fd, frame1, 18);
 
-    type = ws_parse_input_frame(frame1, 18, target, &length);
+    type = ws_parse_input_frame(frame1, 18);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
+    CU_ASSERT(NULL != extract_payload(frame1, (uint64_t*) &length));
     CU_ASSERT(18-2 == length);
 
     free(frame1);
@@ -86,13 +84,13 @@ void
 
     read(fd, frame1, 10);
 
-    type = ws_parse_input_frame(frame1, 961, target, &length);
+    type = ws_parse_input_frame(frame1, 961);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
-    CU_ASSERT(961-4 == length);
     // 961 (total payload size) - 4 (fin, srvs, opcode, payload length) bytes
     CU_ASSERT(961-4 == _payload_length(frame1));
     CU_ASSERT(NULL != extract_payload(frame1, (uint64_t*) &length));
+    CU_ASSERT(961-4 == length);
 
     free(frame1);
     close(fd);
@@ -102,34 +100,34 @@ void
 
     read(fd, frame1, 90402);
 
-    type = ws_parse_input_frame(frame1, 90402, target, &length);
+    type = ws_parse_input_frame(frame1, 90402);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
-    CU_ASSERT(90402-10 == length);
     CU_ASSERT(90402-10 == _payload_length(frame1));
     CU_ASSERT(NULL != extract_payload(frame1, (uint64_t*) &length));
+    CU_ASSERT(90402-10 == length);
 
     free(frame1);
     close(fd);
 
-    type = ws_parse_input_frame(client_big_masked_frame, 90405, target, &length);
+    type = ws_parse_input_frame(client_big_masked_frame, 90405);
     mask = _extract_mask_len3(client_big_masked_frame);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
-    CU_ASSERT(90404-14 == length);
     CU_ASSERT(90404-14 == _payload_length(client_big_masked_frame));
     CU_ASSERT(NULL != mask);
     CU_ASSERT(NULL != extract_payload(client_big_masked_frame, (uint64_t*) &length));
+    CU_ASSERT(90404-14 == length);
     free(mask);
 
-    type = ws_parse_input_frame(client_medium_masked_frame, 90405, target, &length);
+    type = ws_parse_input_frame(client_medium_masked_frame, 90405);
     mask = _extract_mask_len3(client_medium_masked_frame);
 
     CU_ASSERT(WS_TEXT_FRAME == type);
-    CU_ASSERT(333-14 == length);
     CU_ASSERT(333-14 == _payload_length(client_medium_masked_frame));
     CU_ASSERT(NULL != mask);
     CU_ASSERT(NULL != extract_payload(client_medium_masked_frame, (uint64_t*) &length));
+    CU_ASSERT(333-14 == length);
     free(mask);
 }
 
