@@ -5,7 +5,16 @@ COVERAGE_FLAGS=--coverage
 all: clean
 	$(CC) $(LIBS) $(CFLAGS) -c src/b64.c -DDEBUG=0 -DTEST=0
 	$(CC) $(LIBS) $(CFLAGS) -c src/cws.c -DDEBUG=0 -DTEST=0
-	ar rcv libcws.a b64.o cws.o
+	#ar rcv libcws.a b64.o cws.o
+	gcc b64.o cws.o $(CFLAGS) $(LIBS) -fPic -shared -o libcws.so
+
+install:
+	cp libcws.so /usr/local/lib/
+	cp src/cws.h /usr/local/include/
+
+uninstall:
+	rm /usr/local/lib/libcws.so
+	rm /usr/local/include/cws.h
 
 test: clean
 	$(CC) -g -I src/ src/b64.c src/cws.c \
