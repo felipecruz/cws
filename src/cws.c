@@ -447,7 +447,7 @@ uint8_t*
         } else if (*length > 126 && *length < 65536) {
             return &packet[4];
         } else if (*length >= 65536) {
-            return &packet[4];
+            return &packet[10];
         }
     }
     return NULL;
