@@ -190,8 +190,8 @@ void
     CU_ASSERT(3 == _payload_length(first_frame));
     CU_ASSERT(2 == _payload_length(second_frame));
     CU_ASSERT(5 == _payload_length(single_frame_masked));
-
     CU_ASSERT(256 == _payload_length(len_256));
+    CU_ASSERT(256 == _payload_length(len_256_masked));
     CU_ASSERT(65536 == _payload_length(len_64k));
 }
 
