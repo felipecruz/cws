@@ -33,6 +33,7 @@ extern "C" {
 #include <stdint.h> /* uint8_t */
 #include <stdlib.h> /* strtoul */
 #include <string.h>
+#include <strings.h>
 #include <stdio.h> /* sscanf */
 #include <stddef.h> /* size_t */
 
